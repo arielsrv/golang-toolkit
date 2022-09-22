@@ -30,19 +30,6 @@ func NewRESTPoolBuilder() *RESTPoolBuilder {
 	return &RESTPoolBuilder{}
 }
 
-func (builder *RESTPoolBuilder) MakeDefault() *RESTPoolBuilder {
-	builder.Name = "__default__"
-	builder.MaxIdleConnections = MaxIdleConnections
-	builder.MaxConnectionsPerHost = MaxConnectionsPerHost
-	builder.MaxIdleConnectionsPerHost = MaxIdleConnectionsPerHost
-	builder.Timeout = Timeout
-	builder.IdleConnectionTimeout = IdleConnectionTimeout
-	builder.TLSHandshakeTimeout = TLSHandshakeTimeout
-	builder.SocketTimeout = SocketTimeout
-	builder.SocketKeepAlive = SocketKeepAlive
-	return builder
-}
-
 func (builder *RESTPoolBuilder) WithName(name string) *RESTPoolBuilder {
 	builder.Name = name
 	return builder
@@ -85,6 +72,19 @@ func (builder *RESTPoolBuilder) WithMaxConnectionsPerHost(maxConnectionsPerHost 
 
 func (builder *RESTPoolBuilder) WithMaxIdleConnectionsPerHost(maxIdleConnectionsPerHost int) *RESTPoolBuilder {
 	builder.MaxIdleConnectionsPerHost = maxIdleConnectionsPerHost
+	return builder
+}
+
+func (builder *RESTPoolBuilder) MakeDefault() *RESTPoolBuilder {
+	builder.Name = "__default__"
+	builder.MaxIdleConnections = MaxIdleConnections
+	builder.MaxConnectionsPerHost = MaxConnectionsPerHost
+	builder.MaxIdleConnectionsPerHost = MaxIdleConnectionsPerHost
+	builder.Timeout = Timeout
+	builder.IdleConnectionTimeout = IdleConnectionTimeout
+	builder.TLSHandshakeTimeout = TLSHandshakeTimeout
+	builder.SocketTimeout = SocketTimeout
+	builder.SocketKeepAlive = SocketKeepAlive
 	return builder
 }
 

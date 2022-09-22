@@ -33,6 +33,7 @@ func Test_Config(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, restPool)
+	assert.NotEmpty(t, restPool.Name)
 	assert.Equal(t, time.Millisecond*500, restPool.Timeout)
 	assert.Equal(t, time.Millisecond*500, restPool.IdleConnectionTimeout)
 	assert.Equal(t, 20, restPool.MaxIdleConnections)

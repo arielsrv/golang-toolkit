@@ -5,7 +5,7 @@ import (
 )
 
 type RESTPool struct {
-	Name                      string
+	Name                      string // mandatory
 	MaxConnectionsPerHost     int
 	MaxIdleConnections        int
 	MaxIdleConnectionsPerHost int
