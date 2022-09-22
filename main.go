@@ -4,12 +4,21 @@ import (
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"log"
 	"net/http"
+	"time"
 )
+
+type UserResponse struct {
+	ID   int64  `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
 
 func main() {
 	restPool, err := restclient.
 		NewRESTPoolBuilder().
-		MakeDefault().
+		WithName("users").
+		WithTimeout(time.Millisecond * 1000).
+		WithMaxConnectionsPerHost(20).
+		WithMaxIdleConnectionsPerHost(20).
 		Build()
 
 	if err != nil {
@@ -37,9 +46,4 @@ func main() {
 		log.Printf("\tID: %d", element.ID)
 		log.Printf("\tName: %s", element.Name)
 	}
-}
-
-type UserResponse struct {
-	ID   int64  `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
 }

@@ -27,7 +27,16 @@ type RESTPoolBuilder struct {
 }
 
 func NewRESTPoolBuilder() *RESTPoolBuilder {
-	return &RESTPoolBuilder{}
+	return &RESTPoolBuilder{
+		MaxConnectionsPerHost:     MaxConnectionsPerHost,
+		MaxIdleConnections:        MaxIdleConnections,
+		MaxIdleConnectionsPerHost: MaxConnectionsPerHost,
+		Timeout:                   Timeout,
+		IdleConnectionTimeout:     IdleConnectionTimeout,
+		TLSHandshakeTimeout:       TLSHandshakeTimeout,
+		SocketTimeout:             SocketTimeout,
+		SocketKeepAlive:           SocketKeepAlive,
+	}
 }
 
 func (builder *RESTPoolBuilder) WithName(name string) *RESTPoolBuilder {
