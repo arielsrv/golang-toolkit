@@ -3,6 +3,7 @@ version: '3'
 
 env:
   OUTPUT_FOLDER: build
+  ENTRY_POINT: main.go
   EXECUTABLE: app
   COVERAGE_FOLDER: coverage
 
@@ -35,11 +36,6 @@ tasks:
     desc: Check for latest direct dependencies.
     cmds:
       - go-mod-upgrade
-  swagger:
-    desc: Generate RESTful API documentation with Swagger.
-    dir: cmd
-    cmds:
-      - swag init -d ./,../internal/infrastructure/handlers
   build:
     desc: Build the go binary.
     generates:
@@ -47,7 +43,7 @@ tasks:
     interactive: true
     cmds:
       - mkdir -p $OUTPUT_FOLDER
-      - go build -v cmd/main.go
+      - go build -v $ENTRY_POINT
       - mv main $OUTPUT_FOLDER/$EXECUTABLE
   all:
     desc: Run relevant tasks.
@@ -57,7 +53,6 @@ tasks:
       - task: lint
       - task: test
       - task: coverage
-      - task: swagger
       - task: build
   default:
     desc: Run [build] task.
