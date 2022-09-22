@@ -1,7 +1,7 @@
 package restclient_test
 
 import (
-	"github.com/personal/golang-toolkit/restclient"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

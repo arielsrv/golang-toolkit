@@ -3,7 +3,7 @@ package restclient_test
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/personal/golang-toolkit/restclient"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"io"
