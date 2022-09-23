@@ -71,15 +71,14 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 	}
 }
 
-func (execute Execute[T]) Get(url string) (Response[T], error) {
-	var result Response[T]
+func (execute Execute[T]) Get(url string) (*Response[T], error) {
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 	response, err := execute.RESTClient.HTTPClient.Do(request)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 
 	body, err := io.ReadAll(response.Body)
@@ -87,6 +86,7 @@ func (execute Execute[T]) Get(url string) (Response[T], error) {
 		err = Body.Close()
 	}(response.Body)
 
+	var result Response[T]
 	result.Status = response.StatusCode
 	result.Headers = make(map[string]string)
 	for key, values := range response.Header {
@@ -95,13 +95,13 @@ func (execute Execute[T]) Get(url string) (Response[T], error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return result, &Error{Message: string(body)}
+		return &result, &Error{Message: string(body)}
 	}
 
 	err = json.Unmarshal(body, &result.Data)
 	if err != nil {
-		return result, err
+		return &result, err
 	}
 
-	return result, nil
+	return &result, nil
 }

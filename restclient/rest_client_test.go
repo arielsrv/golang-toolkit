@@ -95,16 +95,18 @@ func TestInvalidScheme(t *testing.T) {
 	httpClient := new(MockClient)
 	httpClient.
 		On("Do").
-		Return(Error())
+		Return(Error("invalid url"))
 
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
 
-	_, err := restclient.
+	response, err := restclient.
 		Execute[UserResponse]{RESTClient: &restClient}.
 		Get("http:/api.internal.iskaypet.com/users")
 
 	assert.Error(t, err)
+	assert.Equal(t, "invalid url", err.Error())
+	assert.Nil(t, response)
 }
 
 type UserResponse struct {
@@ -137,6 +139,6 @@ func NotFound() (*http.Response, error) {
 	}, nil
 }
 
-func Error() (*http.Response, error) {
-	return nil, errors.New("invalid url")
+func Error(message string) (*http.Response, error) {
+	return nil, errors.New(message)
 }

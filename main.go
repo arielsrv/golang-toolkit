@@ -31,14 +31,14 @@ func main() {
 	// Generics
 	response, err := restclient.
 		Execute[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users")
+		Get("https://gorest.co.in/public/v2/users2")
 
 	if err != nil {
 		var restClientError *restclient.Error
 		switch {
 		case errors.As(err, &restClientError):
+			log.Println(err.Error())
 			log.Println(response.Status)
-			log.Print(err.Error())
 		default:
 			log.Printf("unexpected error: %s\n", err)
 		}
