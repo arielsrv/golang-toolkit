@@ -45,8 +45,6 @@ func main() {
 	}
 
 	for _, element := range response.Data {
-		log.Println("User")
-		log.Printf("\tID: %d", element.ID)
-		log.Printf("\tName: %s", element.Name)
+		log.Printf("User: ID: %d, Name: %s", element.ID, element.Name)
 	}
 }
