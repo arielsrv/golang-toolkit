@@ -29,7 +29,7 @@ func main() {
 		NewRESTClient(*restPool)
 
 	// Generics
-	userResponse, err := restclient.
+	response, err := restclient.
 		Execute[[]UserResponse]{RESTClient: restClient}.
 		Get("https://gorest.co.in/public/v2/users")
 
@@ -37,14 +37,14 @@ func main() {
 		var restClientError *restclient.Error
 		switch {
 		case errors.As(err, &restClientError):
-			log.Println(userResponse.Status)
+			log.Println(response.Status)
 			log.Print(err.Error())
 		default:
 			log.Printf("unexpected error: %s\n", err)
 		}
 	}
 
-	for _, element := range userResponse.Data {
+	for _, element := range response.Data {
 		log.Println("User")
 		log.Printf("\tID: %d", element.ID)
 		log.Printf("\tName: %s", element.Name)
