@@ -6,7 +6,16 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 )
+
+type Error struct {
+	Message string
+}
+
+func (e *Error) Error() string {
+	return e.Message
+}
 
 type REST[T any] interface {
 	Get(url string) (Response[T], error)
@@ -28,7 +37,17 @@ type RESTClient struct {
 type Response[T any] struct {
 	Data    T
 	Status  int
-	Headers map[string][]string
+	Headers Headers
+}
+
+type Headers map[string]string
+
+func (h Headers) Get(key string) string {
+	return h[key]
+}
+
+func (h Headers) Put(key string, value string) {
+	h[key] = value
 }
 
 func NewRESTClient(restPool RESTPool) *RESTClient {
@@ -67,10 +86,22 @@ func (execute Execute[T]) Get(url string) (Response[T], error) {
 	defer func(Body io.ReadCloser) {
 		err = Body.Close()
 	}(response.Body)
-	err = json.Unmarshal(body, &result.Data)
 
 	result.Status = response.StatusCode
-	result.Headers = response.Header
+	result.Headers = make(map[string]string)
+	for key, values := range response.Header {
+		value := strings.Join(values, ",")
+		result.Headers.Put(key, value)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return result, &Error{Message: string(body)}
+	}
+
+	err = json.Unmarshal(body, &result.Data)
+	if err != nil {
+		return result, err
+	}
 
 	return result, nil
 }

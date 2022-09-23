@@ -1,9 +1,9 @@
 package main
 
 import (
+	"errors"
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -34,11 +34,14 @@ func main() {
 		Get("https://gorest.co.in/public/v2/users")
 
 	if err != nil {
-		log.Fatal(userResponse)
-	}
-
-	if userResponse.Status != http.StatusOK {
-		log.Fatal(userResponse.Status)
+		var restClientError *restclient.Error
+		switch {
+		case errors.As(err, &restClientError):
+			log.Println(userResponse.Status)
+			log.Print(err.Error())
+		default:
+			log.Printf("unexpected error: %s\n", err)
+		}
 	}
 
 	for _, element := range userResponse.Data {

@@ -29,6 +29,9 @@ func Test_Config(t *testing.T) {
 		WithMaxIdleConnections(20).
 		WithMaxConnectionsPerHost(20).
 		WithMaxIdleConnectionsPerHost(20).
+		WithSocketTimeout(time.Millisecond * 5000).
+		WithSocketKeepAlive(time.Millisecond * 5000).
+		WithTLSHandshakeTimeout(time.Millisecond * 5000).
 		Build()
 
 	assert.NoError(t, err)
@@ -36,6 +39,9 @@ func Test_Config(t *testing.T) {
 	assert.NotEmpty(t, restPool.Name)
 	assert.Equal(t, time.Millisecond*500, restPool.Timeout)
 	assert.Equal(t, time.Millisecond*500, restPool.IdleConnectionTimeout)
+	assert.Equal(t, time.Millisecond*5000, restPool.SocketTimeout)
+	assert.Equal(t, time.Millisecond*5000, restPool.SocketKeepAlive)
+	assert.Equal(t, time.Millisecond*5000, restPool.TLSHandshakeTimeout)
 	assert.Equal(t, 20, restPool.MaxIdleConnections)
 	assert.Equal(t, 20, restPool.MaxConnectionsPerHost)
 	assert.Equal(t, 20, restPool.MaxIdleConnectionsPerHost)

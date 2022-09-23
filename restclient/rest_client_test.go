@@ -3,6 +3,7 @@ package restclient_test
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,11 +21,11 @@ func (m *MockClient) Do(*http.Request) (*http.Response, error) {
 	return args.Get(0).(*http.Response), nil
 }
 
-func Test(t *testing.T) {
+func TestOk(t *testing.T) {
 	httpClient := new(MockClient)
 	httpClient.
 		On("Do").
-		Return(Get())
+		Return(Ok())
 
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
@@ -37,9 +38,41 @@ func Test(t *testing.T) {
 	assert.NotNil(t, userResponse)
 
 	assert.NotNil(t, userResponse.Data)
+	assert.NotNil(t, userResponse.Headers)
+	assert.Equal(t, "abc,def", userResponse.Headers.Get("custom-header"))
 	assert.Equal(t, http.StatusOK, userResponse.Status)
 	assert.Equal(t, int64(1), userResponse.Data.ID)
 	assert.Equal(t, "John Doe", userResponse.Data.Name)
+}
+
+func TestNotFound(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(NotFound())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	userResponse, err := restclient.
+		Execute[UserResponse]{RESTClient: &restClient}.
+		Get("api.internal.iskaypet.com/users")
+
+	assert.Error(t, err)
+	assert.Equal(t, "not found", err.Error())
+	var restClientError *restclient.Error
+	assert.True(t, errors.As(err, &restClientError))
+	assert.NotNil(t, userResponse)
+	assert.Equal(t, http.StatusNotFound, userResponse.Status)
+}
+
+func TestNewRestClient(t *testing.T) {
+	restPool, err := restclient.NewRESTPoolBuilder().MakeDefault().Build()
+	assert.NoError(t, err)
+
+	restClient := restclient.NewRESTClient(*restPool)
+	assert.NotNil(t, restClient)
+	assert.NotNil(t, restClient.HTTPClient)
 }
 
 type UserResponse struct {
@@ -47,7 +80,7 @@ type UserResponse struct {
 	Name string `json:"name,omitempty"`
 }
 
-func Get() (*http.Response, error) {
+func Ok() (*http.Response, error) {
 	userResponse := UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
@@ -59,5 +92,15 @@ func Get() (*http.Response, error) {
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       io.NopCloser(bytes.NewBuffer(binary)),
+		Header: map[string][]string{
+			"custom-header": {"abc", "def"},
+		},
+	}, nil
+}
+
+func NotFound() (*http.Response, error) {
+	return &http.Response{
+		StatusCode: http.StatusNotFound,
+		Body:       io.NopCloser(bytes.NewBuffer([]byte("not found"))),
 	}, nil
 }
