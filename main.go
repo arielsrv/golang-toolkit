@@ -30,7 +30,7 @@ func main() {
 	// Generics
 	response, err := restclient.
 		Execute[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users2")
+		Get("https://gorest.co.in/public/v2/users")
 
 	if err != nil {
 		var restClientError *restclient.Error
