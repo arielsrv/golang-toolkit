@@ -25,8 +25,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	restClient := restclient.
-		NewRESTClient(*restPool)
+	restClient := restclient.NewRESTClient(*restPool)
 
 	// Generics
 	response, err := restclient.
@@ -44,7 +43,7 @@ func main() {
 		}
 	}
 
-	for _, element := range response.Data {
-		log.Printf("User: ID: %d, Name: %s", element.ID, element.Name)
+	for _, userResponse := range response.Data {
+		log.Printf("User: ID: %d, Name: %s", userResponse.ID, userResponse.Name)
 	}
 }

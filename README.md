@@ -32,31 +32,27 @@ func main() {
     if err != nil {
         log.Fatalln(err)
     }
-
     restClient := restclient.
         NewRESTClient(*restPool)
 
     // Generics
     response, err := restclient.
         Execute[[]UserResponse]{RESTClient: restClient}.
-        Get("https://gorest.co.in/public/v2/users")
+        Get("https://gorest.co.in/public/v2/users2")
 
     if err != nil {
         var restClientError *restclient.Error
         switch {
         case errors.As(err, &restClientError):
+            log.Println(err.Error())
             log.Println(response.Status)
-            log.Print(err.Error())
         default:
             log.Printf("unexpected error: %s\n", err)
         }
     }
 
-    // UserResponse
-    for _, element := range userResponse.Data {
-        log.Println("User")
-        log.Printf("\tID: %d", element.ID)
-        log.Printf("\tName: %s", element.Name)
+    for _, userResponse := range response.Data {
+        log.Printf("User: ID: %d, Name: %s", userResponse.ID, userResponse.Name)
     }
 }
 ```
