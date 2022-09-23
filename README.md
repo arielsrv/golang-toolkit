@@ -32,6 +32,7 @@ func main() {
     if err != nil {
         log.Fatalln(err)
     }
+    
     restClient := restclient.
         NewRESTClient(*restPool)
 
