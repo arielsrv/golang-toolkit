@@ -18,7 +18,7 @@ type MockClient struct {
 
 func (m *MockClient) Do(*http.Request) (*http.Response, error) {
 	args := m.Called()
-	return args.Get(0).(*http.Response), nil
+	return args.Get(0).(*http.Response), args.Error(1)
 }
 
 func TestOk(t *testing.T) {
@@ -75,6 +75,38 @@ func TestNewRestClient(t *testing.T) {
 	assert.NotNil(t, restClient.HTTPClient)
 }
 
+func TestParsingError(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(Ok())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	_, err := restclient.
+		Execute[[]UserResponse]{RESTClient: &restClient}.
+		Get("api.internal.iskaypet.com/users")
+
+	assert.Error(t, err)
+}
+
+func TestInvalidScheme(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(Error())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	_, err := restclient.
+		Execute[UserResponse]{RESTClient: &restClient}.
+		Get("http:/api.internal.iskaypet.com/users")
+
+	assert.Error(t, err)
+}
+
 type UserResponse struct {
 	ID   int64  `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
@@ -103,4 +135,8 @@ func NotFound() (*http.Response, error) {
 		StatusCode: http.StatusNotFound,
 		Body:       io.NopCloser(bytes.NewBuffer([]byte("not found"))),
 	}, nil
+}
+
+func Error() (*http.Response, error) {
+	return nil, errors.New("invalid url")
 }
