@@ -183,5 +183,9 @@ func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Res
 		URL:    url,
 	}
 	mock := mocks[mockedRequest.GetHashCode()]
+	if mock.Response.Status != http.StatusOK {
+		return &result, &Error{Message: "api error"}
+	}
+
 	return mock.Response, mock.Error
 }

@@ -44,6 +44,24 @@ func TestNetworkError(t *testing.T) {
 	assert.Nil(t, actual)
 }
 
+func TestApiError(t *testing.T) {
+	restClient := restclient.MockResponse[[]service.UserResponse]{}.
+		NewRESTClient().
+		Add(restclient.MockRequest{
+			Method: http.MethodGet,
+			URL:    "https://gorest.co.in/public/v2/users",
+		}, GetAPIError(), restclient.NoNetworkError()).
+		Build()
+
+	assert.NotNil(t, restClient)
+
+	userClient := service.NewUserClient(*restClient)
+
+	actual, err := userClient.GetUsers()
+	assert.Error(t, err)
+	assert.Nil(t, actual)
+}
+
 func GetUserResponse() restclient.Response[[]service.UserResponse] {
 	userResponse := service.UserResponse{
 		ID:   int64(1),
@@ -52,8 +70,15 @@ func GetUserResponse() restclient.Response[[]service.UserResponse] {
 	var result []service.UserResponse
 	result = append(result, userResponse)
 
-	var response restclient.Response[[]service.UserResponse]
-	response.Data = result
-	response.Status = http.StatusOK
-	return response
+	return restclient.Response[[]service.UserResponse]{
+		Data:   result,
+		Status: http.StatusOK,
+	}
+}
+
+func GetAPIError() restclient.Response[[]service.UserResponse] {
+	return restclient.Response[[]service.UserResponse]{
+		Data:   nil,
+		Status: http.StatusInternalServerError,
+	}
 }
