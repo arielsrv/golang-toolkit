@@ -39,10 +39,10 @@ type Execute[T any] struct {
 }
 
 type RESTClient struct {
-	HTTPClient IClient
-	restPool   RESTPool
-	test       bool
-	mock       any
+	HTTPClient  IClient
+	restPool    RESTPool
+	testingMode bool
+	mock        any
 }
 
 type Response[T any] struct {
@@ -126,14 +126,14 @@ func GetHash(mockedRequest MockRequest) string {
 
 func (m MockResponse[T]) Build() *RESTClient {
 	return &RESTClient{
-		test: true,
-		mock: m.responses,
+		testingMode: true,
+		mock:        m.responses,
 	}
 }
 
 func (e Execute[T]) Get(url string) (*Response[T], error) {
 	var result Response[T]
-	if e.RESTClient.test {
+	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodGet, url, result)
 	}
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
