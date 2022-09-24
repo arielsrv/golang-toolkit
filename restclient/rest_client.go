@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/arielsrv/golang-toolkit/restclient/hashcode"
 	"io"
 	"net"
 	"net/http"
@@ -89,7 +90,7 @@ type Tuple[T any] struct {
 }
 
 type MockResponse[T any] struct {
-	responses map[string]Tuple[T]
+	responses map[int]Tuple[T]
 }
 
 func NoNetworkError() error {
@@ -101,7 +102,7 @@ func NetworkError() error {
 }
 
 func (m MockResponse[T]) NewRESTClient() *MockResponse[T] {
-	m.responses = make(map[string]Tuple[T])
+	m.responses = make(map[int]Tuple[T])
 	return &m
 }
 
@@ -110,18 +111,21 @@ type MockRequest struct {
 	URL    string
 }
 
+func (m MockRequest) GetHashCode() int {
+	hash := 7
+	hash = 31*hash + hashcode.String(m.Method)
+	hash = 31*hash + hashcode.String(m.URL)
+	return hash
+}
+
 func (m MockResponse[T]) Add(mockedRequest MockRequest, response Response[T], err error) *MockResponse[T] {
-	hash := GetHash(mockedRequest)
+	hash := mockedRequest.GetHashCode()
 	m.responses[hash] = Tuple[T]{
 		Method:   mockedRequest.Method,
 		Response: &response,
 		Error:    err,
 	}
 	return &m
-}
-
-func GetHash(mockedRequest MockRequest) string {
-	return mockedRequest.Method + mockedRequest.URL
 }
 
 func (m MockResponse[T]) Build() *RESTClient {
@@ -170,14 +174,14 @@ func (e Execute[T]) Get(url string) (*Response[T], error) {
 }
 
 func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Response[T], error) {
-	mocks, boxing := e.RESTClient.mock.(map[string]Tuple[T])
+	mocks, boxing := e.RESTClient.mock.(map[int]Tuple[T])
 	if !boxing {
 		return &result, &MockError{Message: "Internal mocking error. "}
 	}
-	hash := GetHash(MockRequest{
+	mockedRequest := MockRequest{
 		Method: method,
 		URL:    url,
-	})
-	mock := mocks[hash]
+	}
+	mock := mocks[mockedRequest.GetHashCode()]
 	return mock.Response, mock.Error
 }
