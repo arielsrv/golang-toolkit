@@ -7,11 +7,6 @@ import (
 	"time"
 )
 
-type UserResponse struct {
-	ID   int64  `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
-
 func main() {
 	restPool, err := restclient.
 		NewRESTPoolBuilder().
