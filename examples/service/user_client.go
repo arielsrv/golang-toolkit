@@ -1,6 +1,8 @@
 package service
 
-import "github.com/arielsrv/golang-toolkit/restclient"
+import (
+	"github.com/arielsrv/golang-toolkit/restclient"
+)
 
 type IUserClient interface {
 	GetUsers() ([]UserResponse, error)

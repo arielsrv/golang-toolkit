@@ -6,7 +6,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -27,8 +26,7 @@ type IClient interface {
 }
 
 type Execute[T any] struct {
-	RESTClient   *RESTClient
-	mockResponse MockResponse[T]
+	RESTClient *RESTClient
 }
 
 type RESTClient struct {
@@ -87,10 +85,6 @@ func (m MockResponse[T]) GetMock(url string) Tuple[T] {
 }
 
 func (execute Execute[T]) Get(url string) (*Response[T], error) {
-	if os.Getenv("test") != "" {
-		mock := execute.mockResponse.GetMock(url)
-		return mock.Response, mock.Error
-	}
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
