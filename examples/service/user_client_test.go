@@ -10,12 +10,14 @@ import (
 
 func TestOk(t *testing.T) {
 	restClient := restclient.MockResponse[[]service.UserResponse]{}.
-		NewRESTClient(
+		NewRESTClient().
+		Add(
 			http.MethodGet,
 			"https://gorest.co.in/public/v2/users",
 			GetUserResponse(),
-			restclient.NoNetworkError(),
-		)
+			restclient.NoNetworkError()).
+		Build()
+
 	assert.NotNil(t, restClient)
 
 	userClient := service.NewUserClient(*restClient)
@@ -23,6 +25,21 @@ func TestOk(t *testing.T) {
 	actual, err := userClient.GetUsers()
 	assert.NoError(t, err)
 	assert.NotNil(t, actual)
+}
+
+func TestNetworkError(t *testing.T) {
+	restClient := restclient.MockResponse[[]service.UserResponse]{}.
+		NewRESTClient().
+		Add(http.MethodGet, "https://gorest.co.in/public/v2/users", GetUserResponse(), restclient.NetworkError()).
+		Build()
+
+	assert.NotNil(t, restClient)
+
+	userClient := service.NewUserClient(*restClient)
+
+	actual, err := userClient.GetUsers()
+	assert.Error(t, err)
+	assert.Nil(t, actual)
 }
 
 func GetUserResponse() restclient.Response[[]service.UserResponse] {

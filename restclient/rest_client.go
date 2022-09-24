@@ -2,7 +2,9 @@ package restclient
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io"
 	"net"
 	"net/http"
@@ -95,13 +97,31 @@ func NoNetworkError() error {
 	return nil
 }
 
-func (m MockResponse[T]) NewRESTClient(method string, url string, response Response[T], err error) *RESTClient {
+func NetworkError() error {
+	return errors.New("network error")
+}
+
+func (m MockResponse[T]) NewRESTClient() *MockResponse[T] {
 	m.responses = make(map[string]Tuple[T])
-	m.responses[url] = Tuple[T]{
+	return &m
+}
+
+func (m MockResponse[T]) Add(method string, url string, response Response[T], err error) *MockResponse[T] {
+	hash := GetHash(method, url)
+	key := base64.StdEncoding.EncodeToString([]byte(hash))
+	m.responses[key] = Tuple[T]{
 		Method:   method,
 		Response: &response,
 		Error:    err,
 	}
+	return &m
+}
+
+func GetHash(method string, url string) string {
+	return method + url
+}
+
+func (m MockResponse[T]) Build() *RESTClient {
 	return &RESTClient{
 		test: true,
 		mock: m.responses,
@@ -111,7 +131,7 @@ func (m MockResponse[T]) NewRESTClient(method string, url string, response Respo
 func (e Execute[T]) Get(url string) (*Response[T], error) {
 	var result Response[T]
 	if e.RESTClient.test {
-		return e.GetMock(url, result)
+		return e.GetMock(http.MethodGet, url, result)
 	}
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
@@ -146,11 +166,13 @@ func (e Execute[T]) Get(url string) (*Response[T], error) {
 	return &result, nil
 }
 
-func (e Execute[T]) GetMock(url string, result Response[T]) (*Response[T], error) {
+func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Response[T], error) {
 	mocks, boxing := e.RESTClient.mock.(map[string]Tuple[T])
 	if !boxing {
 		return &result, &MockError{Message: "Internal mocking error. "}
 	}
-	mock := mocks[url]
-	return mock.Response, nil
+	hash := GetHash(method, url)
+	key := base64.StdEncoding.EncodeToString([]byte(hash))
+	mock := mocks[key]
+	return mock.Response, mock.Error
 }
