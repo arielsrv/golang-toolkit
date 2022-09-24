@@ -11,11 +11,10 @@ import (
 func TestOk(t *testing.T) {
 	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		Add(
-			http.MethodGet,
-			"https://gorest.co.in/public/v2/users",
-			GetUserResponse(),
-			restclient.NoNetworkError()).
+		Add(restclient.MockRequest{
+			Method: http.MethodGet,
+			URL:    "https://gorest.co.in/public/v2/users",
+		}, GetUserResponse(), restclient.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -30,7 +29,10 @@ func TestOk(t *testing.T) {
 func TestNetworkError(t *testing.T) {
 	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		Add(http.MethodGet, "https://gorest.co.in/public/v2/users", GetUserResponse(), restclient.NetworkError()).
+		Add(restclient.MockRequest{
+			Method: http.MethodGet,
+			URL:    "https://gorest.co.in/public/v2/users",
+		}, GetUserResponse(), restclient.NetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)

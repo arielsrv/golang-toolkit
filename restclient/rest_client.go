@@ -2,7 +2,6 @@ package restclient
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"io"
@@ -106,19 +105,23 @@ func (m MockResponse[T]) NewRESTClient() *MockResponse[T] {
 	return &m
 }
 
-func (m MockResponse[T]) Add(method string, url string, response Response[T], err error) *MockResponse[T] {
-	hash := GetHash(method, url)
-	key := base64.StdEncoding.EncodeToString([]byte(hash))
-	m.responses[key] = Tuple[T]{
-		Method:   method,
+type MockRequest struct {
+	Method string
+	URL    string
+}
+
+func (m MockResponse[T]) Add(mockedRequest MockRequest, response Response[T], err error) *MockResponse[T] {
+	hash := GetHash(mockedRequest)
+	m.responses[hash] = Tuple[T]{
+		Method:   mockedRequest.Method,
 		Response: &response,
 		Error:    err,
 	}
 	return &m
 }
 
-func GetHash(method string, url string) string {
-	return method + url
+func GetHash(mockedRequest MockRequest) string {
+	return mockedRequest.Method + mockedRequest.URL
 }
 
 func (m MockResponse[T]) Build() *RESTClient {
@@ -171,8 +174,10 @@ func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Res
 	if !boxing {
 		return &result, &MockError{Message: "Internal mocking error. "}
 	}
-	hash := GetHash(method, url)
-	key := base64.StdEncoding.EncodeToString([]byte(hash))
-	mock := mocks[key]
+	hash := GetHash(MockRequest{
+		Method: method,
+		URL:    url,
+	})
+	mock := mocks[hash]
 	return mock.Response, mock.Error
 }
