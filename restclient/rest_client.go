@@ -17,6 +17,14 @@ func (e *Error) Error() string {
 	return e.Message
 }
 
+type MockError struct {
+	Message string
+}
+
+func (e *MockError) Error() string {
+	return e.Message
+}
+
 type REST[T any] interface {
 	Get(url string) (Response[T], error)
 }
@@ -32,6 +40,8 @@ type Execute[T any] struct {
 type RESTClient struct {
 	HTTPClient IClient
 	restPool   RESTPool
+	test       bool
+	mock       any
 }
 
 type Response[T any] struct {
@@ -72,6 +82,7 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 }
 
 type Tuple[T any] struct {
+	Method   string
 	Response *Response[T]
 	Error    error
 }
@@ -80,16 +91,38 @@ type MockResponse[T any] struct {
 	responses map[string]Tuple[T]
 }
 
-func (m MockResponse[T]) GetMock(url string) Tuple[T] {
-	return m.responses[url]
+func NoNetworkError() error {
+	return nil
 }
 
-func (execute Execute[T]) Get(url string) (*Response[T], error) {
+func (m MockResponse[T]) NewRESTClient(method string, url string, response Response[T], err error) *RESTClient {
+	m.responses = make(map[string]Tuple[T])
+	m.responses[url] = Tuple[T]{
+		Method:   method,
+		Response: &response,
+		Error:    err,
+	}
+	return &RESTClient{
+		test: true,
+		mock: m.responses,
+	}
+}
+
+func (e Execute[T]) Get(url string) (*Response[T], error) {
+	var result Response[T]
+	if e.RESTClient.test {
+		mocks, boxing := e.RESTClient.mock.(map[string]Tuple[T])
+		if !boxing {
+			return &result, &MockError{Message: "Internal mocking error. "}
+		}
+		mock := mocks[url]
+		return mock.Response, nil
+	}
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
-	response, err := execute.RESTClient.HTTPClient.Do(request)
+	response, err := e.RESTClient.HTTPClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +132,6 @@ func (execute Execute[T]) Get(url string) (*Response[T], error) {
 		err = Body.Close()
 	}(response.Body)
 
-	var result Response[T]
 	result.Status = response.StatusCode
 	result.Headers = make(map[string]string)
 	for key, values := range response.Header {
