@@ -111,12 +111,7 @@ func (m MockResponse[T]) NewRESTClient(method string, url string, response Respo
 func (e Execute[T]) Get(url string) (*Response[T], error) {
 	var result Response[T]
 	if e.RESTClient.test {
-		mocks, boxing := e.RESTClient.mock.(map[string]Tuple[T])
-		if !boxing {
-			return &result, &MockError{Message: "Internal mocking error. "}
-		}
-		mock := mocks[url]
-		return mock.Response, nil
+		return e.GetMock(url, result)
 	}
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
@@ -149,4 +144,13 @@ func (e Execute[T]) Get(url string) (*Response[T], error) {
 	}
 
 	return &result, nil
+}
+
+func (e Execute[T]) GetMock(url string, result Response[T]) (*Response[T], error) {
+	mocks, boxing := e.RESTClient.mock.(map[string]Tuple[T])
+	if !boxing {
+		return &result, &MockError{Message: "Internal mocking error. "}
+	}
+	mock := mocks[url]
+	return mock.Response, nil
 }
