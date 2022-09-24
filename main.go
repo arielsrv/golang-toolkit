@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"github.com/arielsrv/golang-toolkit/examples/service"
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"log"
 	"time"
@@ -26,24 +26,16 @@ func main() {
 	}
 
 	restClient := restclient.NewRESTClient(*restPool)
+	userClient := service.NewUserClient(*restClient)
+	userService := service.NewUserService(userClient)
 
-	// Generics
-	response, err := restclient.
-		Execute[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users")
+	usersDto, err := userService.GetUsers()
 
 	if err != nil {
-		var restClientError *restclient.Error
-		switch {
-		case errors.As(err, &restClientError):
-			log.Println(err.Error())
-			log.Println(response.Status)
-		default:
-			log.Printf("unexpected error: %s\n", err)
-		}
+		log.Fatal(err)
 	}
 
-	for _, userResponse := range response.Data {
-		log.Printf("User: ID: %d, Name: %s", userResponse.ID, userResponse.Name)
+	for _, userResponse := range usersDto {
+		log.Printf("User: ID: %d, FullName: %s", userResponse.ID, userResponse.FullName)
 	}
 }

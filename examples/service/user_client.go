@@ -15,5 +15,13 @@ func NewUserClient(restClient restclient.RESTClient) *UserClient {
 }
 
 func (u UserClient) GetUsers() ([]UserResponse, error) {
-	panic("implement me")
+	response, err := restclient.
+		Execute[[]UserResponse]{RESTClient: &u.restClient}.
+		Get("https://gorest.co.in/public/v2/users")
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Data, nil
 }
