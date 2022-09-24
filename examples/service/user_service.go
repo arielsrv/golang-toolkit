@@ -1,9 +1,5 @@
 package service
 
-func (u UserClient) GetUsers() ([]UserResponse, error) {
-	panic("implement me")
-}
-
 type IUserService interface {
 	GetUsers() ([]UserDto, error)
 }

@@ -13,3 +13,7 @@ type UserClient struct {
 func NewUserClient(restClient restclient.RESTClient) *UserClient {
 	return &UserClient{restClient: restClient}
 }
+
+func (u UserClient) GetUsers() ([]UserResponse, error) {
+	panic("implement me")
+}
