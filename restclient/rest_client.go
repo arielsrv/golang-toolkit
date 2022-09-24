@@ -2,11 +2,12 @@ package restclient
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -15,6 +16,14 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
+	return e.Message
+}
+
+type MockError struct {
+	Message string
+}
+
+func (e *MockError) Error() string {
 	return e.Message
 }
 
@@ -27,13 +36,14 @@ type IClient interface {
 }
 
 type Execute[T any] struct {
-	RESTClient   *RESTClient
-	mockResponse MockResponse[T]
+	RESTClient *RESTClient
 }
 
 type RESTClient struct {
 	HTTPClient IClient
 	restPool   RESTPool
+	test       bool
+	mock       any
 }
 
 type Response[T any] struct {
@@ -74,6 +84,7 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 }
 
 type Tuple[T any] struct {
+	Method   string
 	Response *Response[T]
 	Error    error
 }
@@ -82,20 +93,51 @@ type MockResponse[T any] struct {
 	responses map[string]Tuple[T]
 }
 
-func (m MockResponse[T]) GetMock(url string) Tuple[T] {
-	return m.responses[url]
+func NoNetworkError() error {
+	return nil
 }
 
-func (execute Execute[T]) Get(url string) (*Response[T], error) {
-	if os.Getenv("test") != "" {
-		mock := execute.mockResponse.GetMock(url)
-		return mock.Response, mock.Error
+func NetworkError() error {
+	return errors.New("network error")
+}
+
+func (m MockResponse[T]) NewRESTClient() *MockResponse[T] {
+	m.responses = make(map[string]Tuple[T])
+	return &m
+}
+
+func (m MockResponse[T]) Add(method string, url string, response Response[T], err error) *MockResponse[T] {
+	hash := GetHash(method, url)
+	key := base64.StdEncoding.EncodeToString([]byte(hash))
+	m.responses[key] = Tuple[T]{
+		Method:   method,
+		Response: &response,
+		Error:    err,
+	}
+	return &m
+}
+
+func GetHash(method string, url string) string {
+	return method + url
+}
+
+func (m MockResponse[T]) Build() *RESTClient {
+	return &RESTClient{
+		test: true,
+		mock: m.responses,
+	}
+}
+
+func (e Execute[T]) Get(url string) (*Response[T], error) {
+	var result Response[T]
+	if e.RESTClient.test {
+		return e.GetMock(http.MethodGet, url, result)
 	}
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
-	response, err := execute.RESTClient.HTTPClient.Do(request)
+	response, err := e.RESTClient.HTTPClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +147,6 @@ func (execute Execute[T]) Get(url string) (*Response[T], error) {
 		err = Body.Close()
 	}(response.Body)
 
-	var result Response[T]
 	result.Status = response.StatusCode
 	result.Headers = make(map[string]string)
 	for key, values := range response.Header {
@@ -123,4 +164,15 @@ func (execute Execute[T]) Get(url string) (*Response[T], error) {
 	}
 
 	return &result, nil
+}
+
+func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Response[T], error) {
+	mocks, boxing := e.RESTClient.mock.(map[string]Tuple[T])
+	if !boxing {
+		return &result, &MockError{Message: "Internal mocking error. "}
+	}
+	hash := GetHash(method, url)
+	key := base64.StdEncoding.EncodeToString([]byte(hash))
+	mock := mocks[key]
+	return mock.Response, mock.Error
 }
