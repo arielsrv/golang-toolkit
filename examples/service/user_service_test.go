@@ -2,10 +2,8 @@ package service_test
 
 import (
 	"github.com/arielsrv/golang-toolkit/examples/service"
-	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"net/http"
 	"testing"
 )
 
@@ -39,9 +37,5 @@ func Ok() ([]service.UserResponse, error) {
 	}
 	var result []service.UserResponse
 	result = append(result, userResponse)
-
-	var response restclient.Response[[]service.UserResponse]
-	response.Data = result
-	response.Status = http.StatusOK
 	return result, nil
 }
