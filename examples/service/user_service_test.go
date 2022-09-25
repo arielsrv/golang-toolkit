@@ -2,6 +2,7 @@ package service_test
 
 import (
 	"github.com/arielsrv/golang-toolkit/examples/service"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -30,6 +31,17 @@ func Test(t *testing.T) {
 	assert.Equal(t, "John Doe", actual[0].FullName)
 }
 
+func TestError(t *testing.T) {
+	userClient := new(MockUserClient[[]service.UserResponse])
+	userClient.On("GetUsers").Return(Error())
+	userService := service.NewUserService(userClient)
+
+	actual, err := userService.GetUsers()
+
+	assert.Error(t, err)
+	assert.Nil(t, actual)
+}
+
 func Ok() ([]service.UserResponse, error) {
 	userResponse := service.UserResponse{
 		ID:   int64(1),
@@ -38,4 +50,8 @@ func Ok() ([]service.UserResponse, error) {
 	var result []service.UserResponse
 	result = append(result, userResponse)
 	return result, nil
+}
+
+func Error() ([]service.UserResponse, error) {
+	return nil, &restclient.Error{Message: "internal server error"}
 }
