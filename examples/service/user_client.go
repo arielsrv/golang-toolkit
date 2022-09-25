@@ -16,9 +16,9 @@ func NewUserClient(restClient restclient.RESTClient) *UserClient {
 	return &UserClient{restClient: restClient}
 }
 
-func (u UserClient) GetUsers() ([]UserResponse, error) {
+func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 	response, err := restclient.
-		Execute[[]UserResponse]{RESTClient: &u.restClient}.
+		Execute[[]UserResponse]{RESTClient: &userClient.restClient}.
 		Get("https://gorest.co.in/public/v2/users")
 
 	if err != nil {

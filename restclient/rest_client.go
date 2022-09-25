@@ -54,12 +54,12 @@ type Response[T any] struct {
 
 type Headers map[string]string
 
-func (h Headers) Get(key string) string {
-	return h[key]
+func (headers Headers) Get(key string) string {
+	return headers[key]
 }
 
-func (h Headers) Put(key string, value string) {
-	h[key] = value
+func (headers Headers) Put(key string, value string) {
+	headers[key] = value
 }
 
 func NewRESTClient(restPool RESTPool) *RESTClient {
@@ -101,9 +101,9 @@ func NetworkError() error {
 	return errors.New("network error")
 }
 
-func (m MockResponse[T]) NewRESTClient() *MockResponse[T] {
-	m.responses = make(map[int]Tuple[T])
-	return &m
+func (mockResponse MockResponse[T]) NewRESTClient() *MockResponse[T] {
+	mockResponse.responses = make(map[int]Tuple[T])
+	return &mockResponse
 }
 
 type MockRequest struct {
@@ -111,27 +111,27 @@ type MockRequest struct {
 	URL    string
 }
 
-func (m MockRequest) GetHashCode() int {
+func (mockRequest MockRequest) GetHashCode() int {
 	hash := 7
-	hash = 31*hash + hashcode.String(m.Method)
-	hash = 31*hash + hashcode.String(m.URL)
+	hash = 31*hash + hashcode.String(mockRequest.Method)
+	hash = 31*hash + hashcode.String(mockRequest.URL)
 	return hash
 }
 
-func (m MockResponse[T]) Add(mockedRequest MockRequest, response Response[T], err error) *MockResponse[T] {
-	hash := mockedRequest.GetHashCode()
-	m.responses[hash] = Tuple[T]{
-		Method:   mockedRequest.Method,
+func (mockResponse MockResponse[T]) AddMockRequest(mockRequest MockRequest, response Response[T], err error) *MockResponse[T] {
+	hash := mockRequest.GetHashCode()
+	mockResponse.responses[hash] = Tuple[T]{
+		Method:   mockRequest.Method,
 		Response: &response,
 		Error:    err,
 	}
-	return &m
+	return &mockResponse
 }
 
-func (m MockResponse[T]) Build() *RESTClient {
+func (mockResponse MockResponse[T]) Build() *RESTClient {
 	return &RESTClient{
 		testingMode: true,
-		mock:        m.responses,
+		mock:        mockResponse.responses,
 	}
 }
 
@@ -184,7 +184,7 @@ func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Res
 	}
 	mock := mocks[mockedRequest.GetHashCode()]
 	if mock.Response.Status != http.StatusOK {
-		return &result, &Error{Message: "api error"}
+		return &result, &Error{Message: "mocked api error"}
 	}
 
 	return mock.Response, mock.Error

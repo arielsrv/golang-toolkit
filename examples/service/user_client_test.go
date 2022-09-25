@@ -11,7 +11,7 @@ import (
 func TestOk(t *testing.T) {
 	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		Add(restclient.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
 		}, GetUserResponse(), restclient.NoNetworkError()).
@@ -29,7 +29,7 @@ func TestOk(t *testing.T) {
 func TestNetworkError(t *testing.T) {
 	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		Add(restclient.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
 		}, GetUserResponse(), restclient.NetworkError()).
@@ -47,7 +47,7 @@ func TestNetworkError(t *testing.T) {
 func TestApiError(t *testing.T) {
 	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		Add(restclient.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
 		}, GetAPIError(), restclient.NoNetworkError()).
