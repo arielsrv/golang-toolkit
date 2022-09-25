@@ -39,68 +39,68 @@ func main() {
 }
 ```
 
-##️UserClient
+###️UserClient
 
 ```go
 package service
 
 import (
-"github.com/arielsrv/golang-toolkit/restclient"
+    "github.com/arielsrv/golang-toolkit/restclient"
 )
 
 type IUserClient interface {
-GetUsers() ([]UserResponse, error)
+    GetUsers() ([]UserResponse, error)
 }
 
 type UserClient struct {
-restClient restclient.RESTClient
+    restClient restclient.RESTClient
 }
 
 func NewUserClient(restClient restclient.RESTClient) *UserClient {
-return &UserClient{restClient: restClient}
+    return &UserClient{restClient: restClient}
 }
 
 func (userClient UserClient) GetUsers() ([]UserResponse, error) {
-response, err := restclient.
-Execute[[]UserResponse]{RESTClient: &userClient.restClient}.
-Get("https://gorest.co.in/public/v2/users")
+    response, err := restclient.
+    Execute[[]UserResponse]{RESTClient: &userClient.restClient}.
+    Get("https://gorest.co.in/public/v2/users")
 
-if err != nil {
-return nil, err
-}
+    if err != nil {
+        return nil, err
+    }
 
-return response.Data, nil
+    return response.Data, nil
 }
 ```
 
-## UserTest
+### UserTest
 
 ```go
 package service_test
 
 import (
-"github.com/arielsrv/golang-toolkit/examples/service"
-"github.com/arielsrv/golang-toolkit/restclient"
-"github.com/stretchr/testify/assert"
-"net/http"
-"testing"
+    "github.com/arielsrv/golang-toolkit/examples/service"
+    "github.com/arielsrv/golang-toolkit/restclient"
+    "github.com/stretchr/testify/assert"
+    "net/http"
+    "testing"
 )
 
 func TestOk(t *testing.T) {
-restClient := restclient.MockResponse[[]service.UserResponse]{}.
-NewRESTClient().
-AddMockRequest(restclient.MockRequest{
-Method: http.MethodGet,
-URL:    "https://gorest.co.in/public/v2/users",
-}, GetAPIResponse(), restclient.NoNetworkError()).
-Build()
+    restClient := restclient.MockResponse[[]service.UserResponse]{}.
+    NewRESTClient().
+    AddMockRequest(restclient.MockRequest{
+        Method: http.MethodGet,
+        URL:    "https://gorest.co.in/public/v2/users",
+    }, GetAPIResponse(), restclient.NoNetworkError()).
+    Build()
 
-assert.NotNil(t, restClient)
+    assert.NotNil(t, restClient)
 
-userClient := service.NewUserClient(*restClient)
+    userClient := service.NewUserClient(*restClient)
 
-actual, err := userClient.GetUsers()
-assert.NoError(t, err)
-assert.NotNil(t, actual)
+    actual, err := userClient.GetUsers()
+    assert.NoError(t, err)
+    assert.NotNil(t, actual)
 }
 ```
