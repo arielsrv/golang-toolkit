@@ -3,6 +3,7 @@
 ![Coverage](https://img.shields.io/badge/Coverage-92.1%25-brightgreen)
 [![Update release version.](https://github.com/tj-actions/coverage-badge-go/workflows/Update%20release%20version./badge.svg)](https://github.com/tj-actions/coverage-badge-go/actions?query=workflow%3A%22Update+release+version.%22)
 
+# Generic REST Client with connection pool
 ## ⚡️ Quickstart
 
 ```go
