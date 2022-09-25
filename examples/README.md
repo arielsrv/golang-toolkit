@@ -39,7 +39,7 @@ func main() {
 }
 ```
 
-###️UserClient
+### UserClient
 
 ```go
 package service
@@ -102,5 +102,19 @@ func TestOk(t *testing.T) {
     actual, err := userClient.GetUsers()
     assert.NoError(t, err)
     assert.NotNil(t, actual)
+}
+
+func GetAPIResponse() restclient.Response[[]service.UserResponse] {
+    userResponse := service.UserResponse{
+        ID:   int64(1),
+        Name: "John Doe",
+    }
+    var result []service.UserResponse
+    result = append(result, userResponse)
+
+    return restclient.Response[[]service.UserResponse]{
+        Data:   result,
+        Status: http.StatusOK,
+    }
 }
 ```
