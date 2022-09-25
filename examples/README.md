@@ -88,12 +88,12 @@ import (
 
 func TestOk(t *testing.T) {
     restClient := restclient.MockResponse[[]service.UserResponse]{}.
-    NewRESTClient().
-    AddMockRequest(restclient.MockRequest{
-        Method: http.MethodGet,
-        URL:    "https://gorest.co.in/public/v2/users",
-    }, GetAPIResponse(), restclient.NoNetworkError()).
-    Build()
+        NewRESTClient().
+        AddMockRequest(restclient.MockRequest{
+            Method: http.MethodGet,
+            URL:    "https://gorest.co.in/public/v2/users",
+        }, GetAPIResponse(), restclient.NoNetworkError()).
+        Build()
 
     assert.NotNil(t, restClient)
 
