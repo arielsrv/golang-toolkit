@@ -40,7 +40,8 @@ func main() {
 ```
 
 ##️UserClient
-```
+
+```go
 package service
 
 import (
@@ -73,7 +74,8 @@ return response.Data, nil
 ```
 
 ## UserTest
-```
+
+```go
 package service_test
 
 import (
