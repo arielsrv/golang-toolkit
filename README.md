@@ -37,9 +37,9 @@ func main() {
     restClient := restclient.
         NewRESTClient(*restPool)
 
-    // Generics
+    // Generic get
     response, err := restclient.
-        Execute[[]UserResponse]{RESTClient: restClient}.
+        Read[[]UserResponse]{RESTClient: restClient}.
         Get("https://gorest.co.in/public/v2/users2")
 
     if err != nil {
@@ -56,5 +56,16 @@ func main() {
     for _, userResponse := range response.Data {
         log.Printf("User: ID: %d, Name: %s", userResponse.ID, userResponse.Name)
     }
+
+    // Generic post
+    userRequest := &UserResponse{
+        Name: "John Doe"
+    }
+
+    response, err := restclient.
+        Write[UserResponse, UserResponse]{RESTClient: restClient}.
+        Post("https://gorest.co.in/public/v2/users2", userRequest)
+
+    log.Printf("User: ID: %d, Name: %s", userRequest.ID, userRequest.Name)
 }
 ```
