@@ -3,6 +3,8 @@ package service
 import (
 	"fmt"
 	"github.com/arielsrv/golang-toolkit/restclient"
+	httpheader "github.com/go-http-utils/headers"
+	"github.com/ldez/mimetype"
 	"log"
 	"net/http"
 	"os"
@@ -35,8 +37,8 @@ func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 
 func (userClient UserClient) CreateUser(userRequest UserRequest) error {
 	headers := restclient.Headers{}
-	headers.Put("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("GOREST_TOKEN")))
-	headers.Put("Content-Type", "application/json")
+	headers.Put(httpheader.Authorization, fmt.Sprintf("Bearer %s", os.Getenv("GOREST_TOKEN")))
+	headers.Put(httpheader.ContentType, mimetype.ApplicationJSON)
 
 	response, err := restclient.
 		Execute[UserRequest]{RESTClient: &userClient.restClient}.

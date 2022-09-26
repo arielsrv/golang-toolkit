@@ -104,7 +104,7 @@ func (e Execute[T]) call(method string, url string, data io.Reader, headers Head
 	if err != nil {
 		return nil, err
 	}
-	
+
 	for key, value := range headers {
 		request.Header.Set(key, value)
 	}
