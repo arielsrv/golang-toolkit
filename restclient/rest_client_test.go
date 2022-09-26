@@ -74,7 +74,32 @@ func TestPostOk(t *testing.T) {
 	assert.Equal(t, "John Doe", userResponse.Data.Name)
 }
 
-func TestNotFound(t *testing.T) {
+func TestGetNotFound(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(NotFound())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	userRequest := service.UserRequest{
+		Name: "John Doe",
+	}
+
+	userResponse, err := restclient.
+		Execute[service.UserRequest]{RESTClient: &restClient}.
+		Post("api.internal.iskaypet.com/users", userRequest, nil)
+
+	assert.Error(t, err)
+	assert.Equal(t, "not found", err.Error())
+	var restClientError *restclient.APINotFoundError
+	assert.True(t, errors.As(err, &restClientError))
+	assert.NotNil(t, userResponse)
+	assert.Equal(t, http.StatusNotFound, userResponse.Status)
+}
+
+func TestPostNotFound(t *testing.T) {
 	httpClient := new(MockClient)
 	httpClient.
 		On("Do").
