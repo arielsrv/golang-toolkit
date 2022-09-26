@@ -40,10 +40,10 @@ func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 }
 
 func (userClient UserClient) GetUser(userID int64) (*UserResponse, error) {
-	apiUrl := fmt.Sprintf("%s/users/%d", userClient.baseURL, userID)
+	apiURL := fmt.Sprintf("%s/users/%d", userClient.baseURL, userID)
 	response, err := restclient.
 		Read[UserResponse]{RESTClient: &userClient.restClient}.
-		Get(apiUrl, nil)
+		Get(apiURL, nil)
 
 	if err != nil {
 		return nil, err

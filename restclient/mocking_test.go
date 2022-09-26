@@ -71,7 +71,7 @@ func TestExecute_GetMock(t *testing.T) {
 	assert.Equal(t, "John Doe", actual.Data[0].Name)
 }
 
-func TestExecute_GetMockError(t *testing.T) {
+func TestExecute_GetMockErrorRead(t *testing.T) {
 	mockRequest := restclient.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
@@ -90,7 +90,26 @@ func TestExecute_GetMockError(t *testing.T) {
 	assert.NotNil(t, actual)
 }
 
-func TestExecute_GetMockConversionError(t *testing.T) {
+func TestExecute_GetMockErrorWrite(t *testing.T) {
+	mockRequest := restclient.MockRequest{
+		Method: http.MethodPost,
+		URL:    "https://gorest.co.in/public/v2/users",
+	}
+	restClient := restclient.MockResponse[[]UserResponse]{}.
+		NewRESTClient().
+		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		Build()
+
+	var result restclient.Response[[]UserResponse]
+	actual, err := restclient.
+		Write[UserResponse, []UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodPost, "https://gorest.co.in/public/v2/users", &result)
+
+	assert.Error(t, err)
+	assert.NotNil(t, actual)
+}
+
+func TestExecute_GetMockConversionErrorRead(t *testing.T) {
 	mockRequest := restclient.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
@@ -107,6 +126,26 @@ func TestExecute_GetMockConversionError(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Equal(t, "Internal mocking error. ", err.Error())
+	assert.NotNil(t, actual)
+}
+
+func TestExecute_GetMockConversionWrite(t *testing.T) {
+	mockRequest := restclient.MockRequest{
+		Method: http.MethodPost,
+		URL:    "https://gorest.co.in/public/v2/users",
+	}
+	restClient := restclient.MockResponse[[]UserResponse]{}.
+		NewRESTClient().
+		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		Build()
+
+	var result restclient.Response[[]UserResponse]
+	actual, err := restclient.
+		Write[UserResponse, []UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodPost, "https://gorest.co.in/public/v2/users", &result)
+
+	assert.Error(t, err)
+	assert.Equal(t, "mocked api error", err.Error())
 	assert.NotNil(t, actual)
 }
 

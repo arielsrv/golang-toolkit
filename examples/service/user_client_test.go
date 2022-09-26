@@ -26,6 +26,28 @@ func TestOkGet(t *testing.T) {
 	assert.NotNil(t, actual)
 }
 
+func TestOkGetUser(t *testing.T) {
+	restClient := restclient.MockResponse[service.UserResponse]{}.
+		NewRESTClient().
+		AddMockRequest(restclient.MockRequest{
+			Method: http.MethodGet,
+			URL:    "https://gorest.co.in/public/v2/users/1",
+		}, restclient.Response[service.UserResponse]{
+			Data:    GetAPIResponse().Data[0],
+			Status:  http.StatusOK,
+			Headers: nil,
+		}, restclient.NoNetworkError()).
+		Build()
+
+	assert.NotNil(t, restClient)
+
+	userClient := service.NewUserClient(*restClient)
+
+	actual, err := userClient.GetUser(int64(1))
+	assert.NoError(t, err)
+	assert.NotNil(t, actual)
+}
+
 func TestOkPost(t *testing.T) {
 	restClient := restclient.MockResponse[service.UserResponse]{}.
 		NewRESTClient().
