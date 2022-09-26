@@ -9,14 +9,6 @@ import (
 	"strings"
 )
 
-type Error struct {
-	Message string
-}
-
-func (e *Error) Error() string {
-	return e.Message
-}
-
 type REST[T any] interface {
 	Get(url string) (Response[T], error)
 }
@@ -99,8 +91,11 @@ func (e Execute[T]) Get(url string) (*Response[T], error) {
 		result.Headers.Put(key, value)
 	}
 
-	if response.StatusCode != http.StatusOK {
-		return &result, &Error{Message: string(body)}
+	if response.StatusCode > http.StatusBadRequest {
+		err = e.handleError(response, body)
+		if err != nil {
+			return &result, err
+		}
 	}
 
 	err = json.Unmarshal(body, &result.Data)
@@ -109,4 +104,29 @@ func (e Execute[T]) Get(url string) (*Response[T], error) {
 	}
 
 	return &result, nil
+}
+
+func (e Execute[T]) handleError(response *http.Response, body []byte) error {
+	switch response.StatusCode {
+	case http.StatusNotFound:
+		return &APINotFoundError{
+			StatusCode: response.StatusCode,
+			Message:    string(body),
+		}
+	case http.StatusBadRequest:
+		return &APIBadRequestError{
+			StatusCode: response.StatusCode,
+			Message:    string(body),
+		}
+	case http.StatusUnauthorized:
+	case http.StatusForbidden:
+		return &APISecurityError{
+			StatusCode: response.StatusCode,
+			Message:    string(body),
+		}
+	}
+	return &APIError{
+		StatusCode: response.StatusCode,
+		Message:    string(body),
+	}
 }
