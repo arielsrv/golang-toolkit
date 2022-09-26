@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/arielsrv/golang-toolkit/examples/service"
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,7 +22,7 @@ func (m *MockClient) Do(*http.Request) (*http.Response, error) {
 	return args.Get(0).(*http.Response), args.Error(1)
 }
 
-func TestOk(t *testing.T) {
+func TestGetOk(t *testing.T) {
 	httpClient := new(MockClient)
 	httpClient.
 		On("Do").
@@ -33,6 +34,34 @@ func TestOk(t *testing.T) {
 	userResponse, err := restclient.
 		Execute[UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.iskaypet.com/users", nil)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, userResponse)
+
+	assert.NotNil(t, userResponse.Data)
+	assert.NotNil(t, userResponse.Headers)
+	assert.Equal(t, "abc,def", userResponse.Headers.Get("custom-header"))
+	assert.Equal(t, http.StatusOK, userResponse.Status)
+	assert.Equal(t, int64(1), userResponse.Data.ID)
+	assert.Equal(t, "John Doe", userResponse.Data.Name)
+}
+
+func TestPostOk(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(Ok())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	userRequest := service.UserRequest{
+		Name: "John Doe",
+	}
+
+	userResponse, err := restclient.
+		Execute[service.UserRequest]{RESTClient: &restClient}.
+		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userResponse)
