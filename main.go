@@ -34,11 +34,12 @@ func main() {
 		log.Printf("User: ID: %d, FullName: %s", userResponse.ID, userResponse.FullName)
 	}
 
-	var userDto service.UserDto
-	userDto.FullName = "John Doe"  //nolint:nolintlint,govet
-	userDto.Email = "john@doe.com" //nolint:nolintlint,govet
-	userDto.Gender = "male"
-	userDto.Status = "active"
+	userDto := service.UserDto{
+		FullName: "John Doe",
+		Email:    "john@doe.com",
+		Gender:   "male",
+		Status:   "active",
+	}
 
 	err = userService.CreateUser(userDto)
 	if err != nil {
