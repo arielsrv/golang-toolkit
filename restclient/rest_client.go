@@ -1,6 +1,7 @@
 package restclient
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
@@ -10,7 +11,8 @@ import (
 )
 
 type REST[T any] interface {
-	Get(url string) (Response[T], error)
+	Get(url string) (*Response[T], error)
+	Post(url string, request T) (*Response[T], error)
 }
 
 type IClient interface {
@@ -65,14 +67,47 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 	}
 }
 
-func (e Execute[T]) Get(url string) (*Response[T], error) {
-	var result Response[T]
+func (e Execute[T]) Get(url string, headers Headers) (*Response[T], error) {
+	var result *Response[T]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodGet, url, result)
 	}
-	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
+	result, err := e.call(http.MethodGet, url, nil, headers)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+func (e Execute[T]) Post(url string, request T, headers Headers) (*Response[T], error) {
+	var result *Response[T]
+	if e.RESTClient.testingMode {
+		return e.GetMock(http.MethodPost, url, result)
+	}
+	binary, err := json.Marshal(request)
+	if err != nil {
+		return result, err
+	}
+	reader := bytes.NewReader(binary)
+	result, err = e.call(http.MethodPost, url, reader, headers)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+func (e Execute[T]) call(method string, url string, data io.Reader, headers Headers) (*Response[T], error) {
+	var result Response[T]
+	request, err := http.NewRequestWithContext(context.Background(), method, url, data)
 	if err != nil {
 		return nil, err
+	}
+	request.Header.Set("Authorization", "Bearer 3f6b2a688814945ca721952fb95c2ccea3a564a120a79f270fe2c6dbfc05358f")
+	request.Header.Set("Content-Type", "application/json")
+	for key, value := range headers {
+		request.Header.Set(key, value)
 	}
 	response, err := e.RESTClient.HTTPClient.Do(request)
 	if err != nil {

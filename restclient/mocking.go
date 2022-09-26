@@ -66,10 +66,10 @@ func (mockResponse MockResponse[T]) Build() *RESTClient {
 	}
 }
 
-func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Response[T], error) {
+func (e Execute[T]) GetMock(method string, url string, result *Response[T]) (*Response[T], error) {
 	mocks, boxing := e.RESTClient.Mock.(map[uint64]Tuple[T])
 	if !boxing {
-		return &result, &MockError{Message: "Internal mocking error. "}
+		return result, &MockError{Message: "Internal mocking error. "}
 	}
 	mockedRequest := MockRequest{
 		Method: method,
@@ -77,7 +77,7 @@ func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Res
 	}
 	mock := mocks[mockedRequest.GetHashCode()]
 	if mock.Response.Status != http.StatusOK {
-		return &result, &APIError{Message: "mocked api error"}
+		return result, &APIError{Message: "mocked api error"}
 	}
 
 	return mock.Response, mock.Error

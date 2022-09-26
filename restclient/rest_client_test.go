@@ -32,7 +32,7 @@ func TestOk(t *testing.T) {
 
 	userResponse, err := restclient.
 		Execute[UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.iskaypet.com/users")
+		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userResponse)
@@ -56,7 +56,7 @@ func TestNotFound(t *testing.T) {
 
 	userResponse, err := restclient.
 		Execute[UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.iskaypet.com/users")
+		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "not found", err.Error())
@@ -86,7 +86,7 @@ func TestParsingError(t *testing.T) {
 
 	_, err := restclient.
 		Execute[[]UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.iskaypet.com/users")
+		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
 }
@@ -102,7 +102,7 @@ func TestInvalidScheme(t *testing.T) {
 
 	response, err := restclient.
 		Execute[UserResponse]{RESTClient: &restClient}.
-		Get("mailto://\\n")
+		Get("mailto://\\n", nil)
 
 	assert.Error(t, err)
 	assert.Nil(t, response)
@@ -119,7 +119,7 @@ func TestInvalidRequest(t *testing.T) {
 
 	response, err := restclient.
 		Execute[UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.com")
+		Get("api.internal.com", nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "invalid request", err.Error())

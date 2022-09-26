@@ -1,11 +1,16 @@
 package service
 
 import (
+	"fmt"
 	"github.com/arielsrv/golang-toolkit/restclient"
+	"log"
+	"net/http"
+	"os"
 )
 
 type IUserClient interface {
 	GetUsers() ([]UserResponse, error)
+	CreateUser(userRequest UserRequest) error
 }
 
 type UserClient struct {
@@ -19,11 +24,31 @@ func NewUserClient(restClient restclient.RESTClient) *UserClient {
 func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 	response, err := restclient.
 		Execute[[]UserResponse]{RESTClient: &userClient.restClient}.
-		Get("https://gorest.co.in/public/v2/users")
+		Get("https://gorest.co.in/public/v2/users", nil)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return response.Data, nil
+}
+
+func (userClient UserClient) CreateUser(userRequest UserRequest) error {
+	headers := restclient.Headers{}
+	headers.Put("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("GOREST_TOKEN")))
+	headers.Put("Content-Type", "application/json")
+
+	response, err := restclient.
+		Execute[UserRequest]{RESTClient: &userClient.restClient}.
+		Post("https://gorest.co.in/public/v2/users", userRequest, headers)
+
+	if err != nil {
+		return err
+	}
+
+	if response.Status != http.StatusCreated {
+		log.Print("error")
+	}
+
+	return nil
 }

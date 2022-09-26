@@ -61,7 +61,7 @@ func TestExecute_GetMock(t *testing.T) {
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
 		Execute[[]UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, actual)
@@ -84,7 +84,7 @@ func TestExecute_GetMockError(t *testing.T) {
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
 		Execute[[]UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
 	assert.NotNil(t, actual)
@@ -103,7 +103,7 @@ func TestExecute_GetMockConversionError(t *testing.T) {
 	var result restclient.Response[UserResponse]
 	actual, err := restclient.
 		Execute[UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
 	assert.Equal(t, "Internal mocking error. ", err.Error())
@@ -123,7 +123,7 @@ func TestExecute_GetMockNetworkError(t *testing.T) {
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
 		Execute[[]UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
 	assert.NotNil(t, actual)
@@ -141,7 +141,7 @@ func TestExecute_Intercept(t *testing.T) {
 
 	actual, err := restclient.
 		Execute[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users")
+		Get("https://gorest.co.in/public/v2/users", nil)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, actual)

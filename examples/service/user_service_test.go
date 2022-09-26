@@ -17,6 +17,11 @@ func (m *MockUserClient[T]) GetUsers() ([]service.UserResponse, error) {
 	return args.Get(0).([]service.UserResponse), args.Error(1)
 }
 
+func (m *MockUserClient[T]) CreateUser(service.UserRequest) error {
+	args := m.Called()
+	return args.Error(0)
+}
+
 func Test(t *testing.T) {
 	userClient := new(MockUserClient[[]service.UserResponse])
 	userClient.On("GetUsers").Return(Ok())

@@ -33,4 +33,15 @@ func main() {
 	for _, userResponse := range usersDto {
 		log.Printf("User: ID: %d, FullName: %s", userResponse.ID, userResponse.FullName)
 	}
+
+	var userDto service.UserDto
+	userDto.FullName = "John Doe"  //nolint:nolintlint,govet
+	userDto.Email = "john@doe.com" //nolint:nolintlint,govet
+	userDto.Gender = "male"
+	userDto.Status = "active"
+
+	err = userService.CreateUser(userDto)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
