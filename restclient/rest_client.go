@@ -152,8 +152,7 @@ func (e Execute[T]) handleError(response *http.Response, body []byte) error {
 			StatusCode: response.StatusCode,
 			Message:    string(body),
 		}
-	case http.StatusUnauthorized:
-	case http.StatusForbidden:
+	case http.StatusUnauthorized, http.StatusForbidden:
 		return &APISecurityError{
 			StatusCode: response.StatusCode,
 			Message:    string(body),

@@ -99,6 +99,31 @@ func TestGetNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, userResponse.Status)
 }
 
+func TestGetSecurityError(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(Unauthorized())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	userRequest := service.UserRequest{
+		Name: "John Doe",
+	}
+
+	userResponse, err := restclient.
+		Execute[service.UserRequest]{RESTClient: &restClient}.
+		Post("api.internal.iskaypet.com/users", userRequest, nil)
+
+	assert.Error(t, err)
+	assert.Equal(t, "unauthorized", err.Error())
+	var restClientError *restclient.APISecurityError
+	assert.True(t, errors.As(err, &restClientError))
+	assert.NotNil(t, userResponse)
+	assert.Equal(t, http.StatusUnauthorized, userResponse.Status)
+}
+
 func TestPostNotFound(t *testing.T) {
 	httpClient := new(MockClient)
 	httpClient.
@@ -207,6 +232,13 @@ func NotFound() (*http.Response, error) {
 	return &http.Response{
 		StatusCode: http.StatusNotFound,
 		Body:       io.NopCloser(bytes.NewBuffer([]byte("not found"))),
+	}, nil
+}
+
+func Unauthorized() (*http.Response, error) {
+	return &http.Response{
+		StatusCode: http.StatusUnauthorized,
+		Body:       io.NopCloser(bytes.NewBuffer([]byte("unauthorized"))),
 	}, nil
 }
 
