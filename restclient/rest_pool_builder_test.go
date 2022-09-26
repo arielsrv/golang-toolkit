@@ -46,3 +46,13 @@ func Test_Config(t *testing.T) {
 	assert.Equal(t, 20, restPool.MaxConnectionsPerHost)
 	assert.Equal(t, 20, restPool.MaxIdleConnectionsPerHost)
 }
+
+func Test_Missing_Name(t *testing.T) {
+	restPool, err := restclient.NewRESTPoolBuilder().
+		WithTimeout(time.Millisecond * 500).
+		Build()
+
+	assert.Error(t, err)
+	assert.Nil(t, restPool)
+	assert.Equal(t, "builder.Name cannot be empty. ", err.Error())
+}

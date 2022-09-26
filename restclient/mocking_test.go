@@ -15,7 +15,7 @@ func TestMockRequest_GetHashCode(t *testing.T) {
 
 	actual := request.GetHashCode()
 	assert.NotEmpty(t, actual)
-	assert.Equal(t, 56825456632, actual)
+	assert.Equal(t, uint64(0xb27f66347ca6f9cd), actual)
 }
 
 func TestMockResponse_NewRESTClient(t *testing.T) {
@@ -39,7 +39,7 @@ func TestMockResponse_AddMockRequest(t *testing.T) {
 	assert.NotNil(t, restClient)
 	assert.Nil(t, restClient.HTTPClient)
 	assert.NotNil(t, restClient.Mock)
-	actual := restClient.Mock.(map[int]restclient.Tuple[[]UserResponse]) //nolint:nolintlint,errcheck
+	actual := restClient.Mock.(map[uint64]restclient.Tuple[[]UserResponse]) //nolint:nolintlint,errcheck
 	assert.NotNil(t, actual)
 	assert.NotNil(t, actual[mockRequest.GetHashCode()])
 	assert.NotNil(t, actual[mockRequest.GetHashCode()].Response)
@@ -79,6 +79,45 @@ func TestExecute_GetMockError(t *testing.T) {
 	restClient := restclient.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
 		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		Build()
+
+	var result restclient.Response[[]UserResponse]
+	actual, err := restclient.
+		Execute[[]UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+
+	assert.Error(t, err)
+	assert.NotNil(t, actual)
+}
+
+func TestExecute_GetMockConversionError(t *testing.T) {
+	mockRequest := restclient.MockRequest{
+		Method: http.MethodGet,
+		URL:    "https://gorest.co.in/public/v2/users",
+	}
+	restClient := restclient.MockResponse[[]UserResponse]{}.
+		NewRESTClient().
+		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		Build()
+
+	var result restclient.Response[UserResponse]
+	actual, err := restclient.
+		Execute[UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+
+	assert.Error(t, err)
+	assert.Equal(t, "Internal mocking error. ", err.Error())
+	assert.NotNil(t, actual)
+}
+
+func TestExecute_GetMockNetworkError(t *testing.T) {
+	mockRequest := restclient.MockRequest{
+		Method: http.MethodGet,
+		URL:    "https://gorest.co.in/public/v2/users",
+	}
+	restClient := restclient.MockResponse[[]UserResponse]{}.
+		NewRESTClient().
+		AddMockRequest(mockRequest, GetError(), restclient.NetworkError()).
 		Build()
 
 	var result restclient.Response[[]UserResponse]

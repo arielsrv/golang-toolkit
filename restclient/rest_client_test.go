@@ -102,10 +102,27 @@ func TestInvalidScheme(t *testing.T) {
 
 	response, err := restclient.
 		Execute[UserResponse]{RESTClient: &restClient}.
-		Get("http:/api.internal.iskaypet.com/users")
+		Get("mailto://\\n")
 
 	assert.Error(t, err)
-	assert.Equal(t, "invalid url", err.Error())
+	assert.Nil(t, response)
+}
+
+func TestInvalidRequest(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(Error("invalid request"))
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	response, err := restclient.
+		Execute[UserResponse]{RESTClient: &restClient}.
+		Get("api.internal.com")
+
+	assert.Error(t, err)
+	assert.Equal(t, "invalid request", err.Error())
 	assert.Nil(t, response)
 }
 

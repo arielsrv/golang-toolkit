@@ -1,20 +1,15 @@
 package hashcode
 
 import (
-	"hash/crc32"
+	"hash/fnv"
 )
 
 type Comparer interface {
 	GetHashCode() int
 }
 
-func String(value string) int {
-	checksum := int(crc32.ChecksumIEEE([]byte(value)))
-	if checksum >= 0 {
-		return checksum
-	}
-	if -checksum >= 0 {
-		return -checksum
-	}
-	return 0
+func String(value string) uint64 {
+	hash := fnv.New64()
+	hash.Write([]byte(value))
+	return hash.Sum64()
 }

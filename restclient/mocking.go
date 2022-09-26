@@ -29,11 +29,11 @@ func NetworkError() error {
 }
 
 type MockResponse[T any] struct {
-	Responses map[int]Tuple[T]
+	Responses map[uint64]Tuple[T]
 }
 
 func (mockResponse MockResponse[T]) NewRESTClient() *MockResponse[T] {
-	mockResponse.Responses = make(map[int]Tuple[T])
+	mockResponse.Responses = make(map[uint64]Tuple[T])
 	return &mockResponse
 }
 
@@ -42,10 +42,10 @@ type MockRequest struct {
 	URL    string
 }
 
-func (mockRequest MockRequest) GetHashCode() int {
-	hash := 7
-	hash = 31*hash + hashcode.String(mockRequest.Method)
-	hash = 31*hash + hashcode.String(mockRequest.URL)
+func (mockRequest MockRequest) GetHashCode() uint64 {
+	hash := uint64(7)
+	hash = uint64(31)*hash + hashcode.String(mockRequest.Method)
+	hash = uint64(31)*hash + hashcode.String(mockRequest.URL)
 	return hash
 }
 
@@ -67,7 +67,7 @@ func (mockResponse MockResponse[T]) Build() *RESTClient {
 }
 
 func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Response[T], error) {
-	mocks, boxing := e.RESTClient.Mock.(map[int]Tuple[T])
+	mocks, boxing := e.RESTClient.Mock.(map[uint64]Tuple[T])
 	if !boxing {
 		return &result, &MockError{Message: "Internal mocking error. "}
 	}
