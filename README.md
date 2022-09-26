@@ -43,7 +43,7 @@ func main() {
         Get("https://gorest.co.in/public/v2/users2")
 
     if err != nil {
-        var restClientError *restclient.Error
+        var restClientError *restclient.APIError
         switch {
         case errors.As(err, &restClientError):
             log.Println(err.Error())
@@ -65,6 +65,17 @@ func main() {
     response, err := restclient.
         Write[UserResponse, UserResponse]{RESTClient: restClient}.
         Post("https://gorest.co.in/public/v2/users2", userRequest)
+
+    if err != nil {
+        var restClientError *restclient.APIBadRequestError
+        switch {
+        case errors.As(err, &restClientError):
+            log.Println(err.Error())
+            log.Println(response.Status)
+        default:
+            log.Printf("unexpected error: %s\n", err)
+        }
+    }
 
     log.Printf("User: ID: %d, Name: %s", userRequest.ID, userRequest.Name)
 }
