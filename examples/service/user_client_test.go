@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestOk(t *testing.T) {
+func TestOkGet(t *testing.T) {
 	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
 		AddMockRequest(restclient.MockRequest{
@@ -24,6 +24,27 @@ func TestOk(t *testing.T) {
 	actual, err := userClient.GetUsers()
 	assert.NoError(t, err)
 	assert.NotNil(t, actual)
+}
+
+func TestOkPost(t *testing.T) {
+	restClient := restclient.MockResponse[[]service.UserRequest]{}.
+		NewRESTClient().
+		AddMockRequest(restclient.MockRequest{
+			Method: http.MethodPost,
+			URL:    "https://gorest.co.in/public/v2/users",
+		}, GetAPIPostResponse(), restclient.NoNetworkError()).
+		Build()
+
+	assert.NotNil(t, restClient)
+
+	userClient := service.NewUserClient(*restClient)
+
+	userRequest := &service.UserRequest{
+		Name: "John Doe",
+	}
+
+	err := userClient.CreateUser(*userRequest)
+	assert.NoError(t, err)
 }
 
 func TestNetworkError(t *testing.T) {
@@ -71,6 +92,20 @@ func GetAPIResponse() restclient.Response[[]service.UserResponse] {
 	result = append(result, userResponse)
 
 	return restclient.Response[[]service.UserResponse]{
+		Data:   result,
+		Status: http.StatusOK,
+	}
+}
+
+func GetAPIPostResponse() restclient.Response[[]service.UserRequest] {
+	userRequest := service.UserRequest{
+		ID:   int64(1),
+		Name: "John Doe",
+	}
+	var result []service.UserRequest
+	result = append(result, userRequest)
+
+	return restclient.Response[[]service.UserRequest]{
 		Data:   result,
 		Status: http.StatusOK,
 	}
