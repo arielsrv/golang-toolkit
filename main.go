@@ -1,17 +1,14 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"github.com/arielsrv/golang-toolkit/examples/service"
 	"github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/tjarratt/babble"
 	"log"
+	"strings"
 	"time"
 )
-
-type UserResponse struct {
-	ID   int64  `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
 
 func main() {
 	restPool, err := restclient.
@@ -26,48 +23,47 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	restClient := restclient.
-		NewRESTClient(*restPool)
+	restClient := restclient.NewRESTClient(*restPool)
+	userClient := service.NewUserClient(*restClient)
+	userService := service.NewUserService(userClient)
 
-	// Generic get
-	usersResponse, err := restclient.
-		Read[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users", nil)
+	babbler := babble.NewBabbler()
+	babbler.Separator = "_"
+	name := strings.ToLower(babbler.Babble())
+	email := fmt.Sprintf("%s@github.com", name)
 
-	if err != nil {
-		var restClientError *restclient.APIError
-		switch {
-		case errors.As(err, &restClientError):
-			log.Println(err.Error())
-			log.Println(usersResponse.Status)
-		default:
-			log.Printf("unexpected error: %s\n", err)
-		}
-	}
-
-	for _, userResponse := range usersResponse.Data {
-		log.Printf("User: ID: %d, Name: %s", userResponse.ID, userResponse.Name)
-	}
-
-	// Generic post
-	userRequest := &service.UserRequest{
-		Name: "John Doe",
-	}
-
-	result, err := restclient.
-		Write[service.UserRequest, UserResponse]{RESTClient: restClient}.
-		Post("https://gorest.co.in/public/v2/users", *userRequest, nil)
+	log.Println("Creating user ...")
+	userDto, err := userService.CreateUser(service.UserDto{
+		FullName: name,
+		Email:    email,
+		Gender:   "male",
+		Status:   "active",
+	})
 
 	if err != nil {
-		var restClientError *restclient.APIBadRequestError
-		switch {
-		case errors.As(err, &restClientError):
-			log.Println(err.Error())
-			log.Println(result.Status)
-		default:
-			log.Printf("unexpected error: %s\n", err)
-		}
+		log.Fatal(err)
 	}
 
-	log.Printf("User: ID: %d, Name: %s", result.Data.ID, result.Data.Name)
+	log.Printf("User: ID: %d, Name: %s, Email: %s",
+		userDto.ID,
+		userDto.FullName,
+		userDto.Email)
+
+	log.Println("Get all users ...")
+	usersDto, err := userService.GetUsers()
+	if err != nil {
+		log.Fatalf("Error Users %s", err)
+	}
+
+	userID := usersDto[0].ID
+	log.Printf("Get user by id %d ...", userID)
+	search, err := userService.GetUser(userID)
+	if err != nil {
+		log.Fatalf("Error User %d, %s", userID, err)
+	}
+
+	log.Printf("User: ID: %d, Name: %s, Email: %s",
+		search.ID,
+		search.FullName,
+		search.Email)
 }
