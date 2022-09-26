@@ -34,14 +34,13 @@ func main() {
 		log.Printf("User: ID: %d, FullName: %s", userResponse.ID, userResponse.FullName)
 	}
 
-	userDto := service.UserDto{
+	err = userService.CreateUser(service.UserDto{
 		FullName: "John Doe",
-		Email:    "john2@doe.com",
+		Email:    "john@doe.com",
 		Gender:   "male",
 		Status:   "active",
-	}
+	})
 
-	err = userService.CreateUser(userDto)
 	if err != nil {
 		log.Fatal(err)
 	}
