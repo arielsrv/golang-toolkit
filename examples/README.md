@@ -4,117 +4,58 @@
 package main
 
 import (
-    "github.com/arielsrv/golang-toolkit/examples/service"
-    "github.com/arielsrv/golang-toolkit/restclient"
-    "log"
-    "time"
+	"fmt"
+	"github.com/arielsrv/golang-toolkit/examples/service"
+	"github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/tjarratt/babble"
+	"log"
+	"strings"
+	"time"
 )
 
 func main() {
-    restPool, err := restclient.
-        NewRESTPoolBuilder().
-        WithName("users").
-        WithTimeout(time.Millisecond * 1000).
-        WithMaxConnectionsPerHost(20).
-        WithMaxIdleConnectionsPerHost(20).
-        Build()
+	restPool, err := restclient.
+		NewRESTPoolBuilder().
+		WithName("users").
+		WithTimeout(time.Millisecond * 5000).
+		WithMaxConnectionsPerHost(20).
+		WithMaxIdleConnectionsPerHost(20).
+		Build()
 
-    if err != nil {
-        log.Fatalln(err)
-    }
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-    restClient := restclient.NewRESTClient(*restPool)
-    userClient := service.NewUserClient(*restClient)
-    userService := service.NewUserService(userClient)
+	restClient := restclient.NewRESTClient(*restPool)
+	userClient := service.NewUserClient(*restClient)
+	userService := service.NewUserService(userClient)
 
-    usersDto, err := userService.GetUsers()
+	name := strings.ToLower(babble.NewBabbler().Babble())
+	userDto, err := userService.CreateUser(service.UserDto{
+		FullName: name,
+		Email:    fmt.Sprintf("%s@github.com", name),
+		Gender:   "male",
+		Status:   "active",
+	})
 
-    if err != nil {
-        log.Fatal(err)
-    }
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    for _, userResponse := range usersDto {
-        log.Printf("User: ID: %d, FullName: %s", userResponse.ID, userResponse.FullName)
-    }
-}
-```
+	log.Printf("User: ID: %d, Name: %s, Email: %s",
+		userDto.ID,
+		userDto.FullName,
+		userDto.Email)
 
-### UserClient
+	search, err := userService.GetUser(userDto.ID)
 
-```go
-package service
+	if err != nil {
+		log.Fatalf("Error User %d, %s", userDto.ID, err)
+	}
 
-import (
-    "github.com/arielsrv/golang-toolkit/restclient"
-)
-
-type IUserClient interface {
-    GetUsers() ([]UserResponse, error)
-}
-
-type UserClient struct {
-    restClient restclient.RESTClient
-}
-
-func NewUserClient(restClient restclient.RESTClient) *UserClient {
-    return &UserClient{restClient: restClient}
-}
-
-func (userClient UserClient) GetUsers() ([]UserResponse, error) {
-    response, err := restclient.
-        Execute[[]UserResponse]{RESTClient: &userClient.restClient}.
-        Get("https://gorest.co.in/public/v2/users")
-
-    if err != nil {
-        return nil, err
-    }
-
-    return response.Data, nil
-}
-```
-
-### UserTest
-
-```go
-package service_test
-
-import (
-    "github.com/arielsrv/golang-toolkit/examples/service"
-    "github.com/arielsrv/golang-toolkit/restclient"
-    "github.com/stretchr/testify/assert"
-    "net/http"
-    "testing"
-)
-
-func TestOk(t *testing.T) {
-    restClient := restclient.MockResponse[[]service.UserResponse]{}.
-        NewRESTClient().
-        AddMockRequest(restclient.MockRequest{
-            Method: http.MethodGet,
-            URL:    "https://gorest.co.in/public/v2/users",
-        }, GetAPIResponse(), restclient.NoNetworkError()).
-        Build()
-
-    assert.NotNil(t, restClient)
-
-    userClient := service.NewUserClient(*restClient)
-
-    actual, err := userClient.GetUsers()
-    assert.NoError(t, err)
-    assert.NotNil(t, actual)
-}
-
-func GetAPIResponse() restclient.Response[[]service.UserResponse] {
-    userResponse := service.UserResponse{
-        ID:   int64(1),
-        Name: "John Doe",
-    }
-    var result []service.UserResponse
-    result = append(result, userResponse)
-
-    return restclient.Response[[]service.UserResponse]{
-        Data:   result,
-        Status: http.StatusOK,
-    }
+	log.Printf("User: ID: %d, Name: %s, Email: %s",
+		search.ID,
+		search.FullName,
+		search.Email)
 }
 ```
