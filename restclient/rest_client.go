@@ -22,11 +22,11 @@ type IClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type Query[TOutput any] struct {
+type Read[TOutput any] struct {
 	RESTClient *RESTClient
 }
 
-type CommandQuery[TInput any, TOutput any] struct {
+type Write[TInput any, TOutput any] struct {
 	RESTClient *RESTClient
 }
 
@@ -74,7 +74,7 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 	}
 }
 
-func (e Query[TOutput]) Get(url string, headers Headers) (*Response[TOutput], error) {
+func (e Read[TOutput]) Get(url string, headers Headers) (*Response[TOutput], error) {
 	var result *Response[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodGet, url, result)
@@ -87,7 +87,7 @@ func (e Query[TOutput]) Get(url string, headers Headers) (*Response[TOutput], er
 	return result, nil
 }
 
-func (e CommandQuery[TInput, TOutput]) Post(url string, request TInput, headers Headers) (*Response[TOutput], error) {
+func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers) (*Response[TOutput], error) {
 	var result *Response[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodPost, url, result)

@@ -32,7 +32,7 @@ func TestGetOk(t *testing.T) {
 		RESTClient{HTTPClient: httpClient}
 
 	userResponse, err := restclient.
-		Query[UserResponse]{RESTClient: &restClient}.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.NoError(t, err)
@@ -60,7 +60,7 @@ func TestPostOk(t *testing.T) {
 	}
 
 	userResponse, err := restclient.
-		CommandQuery[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.NoError(t, err)
@@ -88,7 +88,7 @@ func TestGetNotFound(t *testing.T) {
 	}
 
 	userResponse, err := restclient.
-		CommandQuery[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
@@ -113,7 +113,7 @@ func TestGetSecurityError(t *testing.T) {
 	}
 
 	userResponse, err := restclient.
-		CommandQuery[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil) //nolint:nolintlint,typecheck
 
 	assert.Error(t, err)
@@ -134,7 +134,7 @@ func TestPostNotFound(t *testing.T) {
 		RESTClient{HTTPClient: httpClient}
 
 	userResponse, err := restclient.
-		Query[UserResponse]{RESTClient: &restClient}.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
@@ -164,7 +164,7 @@ func TestParsingError(t *testing.T) {
 		RESTClient{HTTPClient: httpClient}
 
 	_, err := restclient.
-		Query[[]UserResponse]{RESTClient: &restClient}.
+		Read[[]UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
@@ -180,7 +180,7 @@ func TestInvalidScheme(t *testing.T) {
 		RESTClient{HTTPClient: httpClient}
 
 	response, err := restclient.
-		Query[UserResponse]{RESTClient: &restClient}.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("mailto://\\n", nil)
 
 	assert.Error(t, err)
@@ -197,7 +197,7 @@ func TestInvalidRequest(t *testing.T) {
 		RESTClient{HTTPClient: httpClient}
 
 	response, err := restclient.
-		Query[UserResponse]{RESTClient: &restClient}.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.com", nil)
 
 	assert.Error(t, err)

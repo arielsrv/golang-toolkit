@@ -60,7 +60,7 @@ func TestExecute_GetMock(t *testing.T) {
 
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
-		Query[[]UserResponse]{RESTClient: restClient}.
+		Read[[]UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.NoError(t, err)
@@ -83,7 +83,7 @@ func TestExecute_GetMockError(t *testing.T) {
 
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
-		Query[[]UserResponse]{RESTClient: restClient}.
+		Read[[]UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -102,7 +102,7 @@ func TestExecute_GetMockConversionError(t *testing.T) {
 
 	var result restclient.Response[UserResponse]
 	actual, err := restclient.
-		Query[UserResponse]{RESTClient: restClient}.
+		Read[UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -122,7 +122,7 @@ func TestExecute_GetMockNetworkError(t *testing.T) {
 
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
-		Query[[]UserResponse]{RESTClient: restClient}.
+		Read[[]UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -140,7 +140,7 @@ func TestExecute_Intercept_MethodGet(t *testing.T) {
 		Build()
 
 	actual, err := restclient.
-		Query[[]UserResponse]{RESTClient: restClient}.
+		Read[[]UserResponse]{RESTClient: restClient}.
 		Get("https://gorest.co.in/public/v2/users", nil)
 
 	assert.NoError(t, err)
@@ -163,7 +163,7 @@ func TestExecute_Intercept_MethodPost(t *testing.T) {
 	userResponse := UserResponse{Name: "John Doe"}
 
 	actual, err := restclient.
-		CommandQuery[UserResponse, UserResponse]{RESTClient: restClient}.
+		Write[UserResponse, UserResponse]{RESTClient: restClient}.
 		Post("https://gorest.co.in/public/v2/users", userResponse, nil) //nolint:nolintlint,typecheck
 
 	assert.NoError(t, err)

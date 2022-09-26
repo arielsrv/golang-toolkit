@@ -25,7 +25,7 @@ func NewUserClient(restClient restclient.RESTClient) *UserClient {
 
 func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 	response, err := restclient.
-		Query[[]UserResponse]{RESTClient: &userClient.restClient}.
+		Read[[]UserResponse]{RESTClient: &userClient.restClient}.
 		Get("https://gorest.co.in/public/v2/users", nil)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func (userClient UserClient) CreateUser(userRequest UserRequest) error {
 	headers.Put(httpheader.ContentType, mimetype.ApplicationJSON)
 
 	response, err := restclient.
-		CommandQuery[UserRequest, []UserRequest]{RESTClient: &userClient.restClient}.
+		Write[UserRequest, []UserRequest]{RESTClient: &userClient.restClient}.
 		Post("https://gorest.co.in/public/v2/users", userRequest, headers)
 
 	if err != nil {
