@@ -39,22 +39,22 @@ func main() {
 		NewRESTClient(*restPool)
 
 	// Generic get
-	userResponse, err := restclient.
+	usersResponse, err := restclient.
 		Read[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users2", nil)
+		Get("https://gorest.co.in/public/v2/users", nil)
 
 	if err != nil {
 		var restClientError *restclient.APIError
 		switch {
 		case errors.As(err, &restClientError):
 			log.Println(err.Error())
-			log.Println(userResponse.Status)
+			log.Println(usersResponse.Status)
 		default:
 			log.Printf("unexpected error: %s\n", err)
 		}
 	}
 
-	for _, userResponse := range userResponse.Data {
+	for _, userResponse := range usersResponse.Data {
 		log.Printf("User: ID: %d, Name: %s", userResponse.ID, userResponse.Name)
 	}
 
@@ -65,7 +65,7 @@ func main() {
 
 	result, err := restclient.
 		Write[service.UserRequest, UserResponse]{RESTClient: restClient}.
-		Post("https://gorest.co.in/public/v2/users2", *userRequest, nil)
+		Post("https://gorest.co.in/public/v2/users", *userRequest, nil)
 
 	if err != nil {
 		var restClientError *restclient.APIBadRequestError
