@@ -104,8 +104,7 @@ func (e Execute[T]) call(method string, url string, data io.Reader, headers Head
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("Authorization", "Bearer 3f6b2a688814945ca721952fb95c2ccea3a564a120a79f270fe2c6dbfc05358f")
-	request.Header.Set("Content-Type", "application/json")
+	
 	for key, value := range headers {
 		request.Header.Set(key, value)
 	}
