@@ -36,6 +36,24 @@ func Test(t *testing.T) {
 	assert.Equal(t, "John Doe", actual[0].FullName)
 }
 
+func TestCreate(t *testing.T) {
+	userClient := new(MockUserClient[service.UserResponse])
+	userDto := &service.UserDto{FullName: "John Doe"}
+	userClient.On("CreateUser").Return(GetUser(userDto))
+	userService := service.NewUserService(userClient)
+
+	err := userService.CreateUser(*userDto)
+
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), userDto.ID)
+	assert.Equal(t, "John Doe", userDto.FullName)
+}
+
+func GetUser(userDto *service.UserDto) error {
+	userDto.ID = int64(1)
+	return nil
+}
+
 func TestError(t *testing.T) {
 	userClient := new(MockUserClient[[]service.UserResponse])
 	userClient.On("GetUsers").Return(Error())
