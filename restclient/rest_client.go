@@ -1,6 +1,7 @@
 package restclient
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
@@ -9,15 +10,23 @@ import (
 	"strings"
 )
 
-type REST[T any] interface {
-	Get(url string) (Response[T], error)
+type RESTQuery[TOutput any] interface {
+	Get(url string) (*Response[TOutput], error)
+}
+
+type RESTCommand[TInput any, TOutput any] interface {
+	Post(url string, request TInput) (*Response[TOutput], error)
 }
 
 type IClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type Execute[T any] struct {
+type Read[TOutput any] struct {
+	RESTClient *RESTClient
+}
+
+type Write[TInput any, TOutput any] struct {
 	RESTClient *RESTClient
 }
 
@@ -28,8 +37,8 @@ type RESTClient struct {
 	Mock        any
 }
 
-type Response[T any] struct {
-	Data    T
+type Response[TOutput any] struct {
+	Data    TOutput
 	Status  int
 	Headers Headers
 }
@@ -65,16 +74,48 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 	}
 }
 
-func (e Execute[T]) Get(url string) (*Response[T], error) {
-	var result Response[T]
+func (e Read[TOutput]) Get(url string, headers Headers) (*Response[TOutput], error) {
+	var result *Response[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodGet, url, result)
 	}
-	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
+	result, err := call[TOutput](e.RESTClient.HTTPClient, http.MethodGet, url, nil, headers)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers) (*Response[TOutput], error) {
+	var result *Response[TOutput]
+	if e.RESTClient.testingMode {
+		return e.GetMock(http.MethodPost, url, result)
+	}
+	binary, err := json.Marshal(request)
+	if err != nil {
+		return result, err
+	}
+	reader := bytes.NewReader(binary)
+	result, err = call[TOutput](e.RESTClient.HTTPClient, http.MethodPost, url, reader, headers)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+func call[TOutput any](client IClient, method string, url string, data io.Reader, headers Headers) (*Response[TOutput], error) {
+	var result Response[TOutput]
+	request, err := http.NewRequestWithContext(context.Background(), method, url, data)
 	if err != nil {
 		return nil, err
 	}
-	response, err := e.RESTClient.HTTPClient.Do(request)
+
+	for key, value := range headers {
+		request.Header.Set(key, value)
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +133,7 @@ func (e Execute[T]) Get(url string) (*Response[T], error) {
 	}
 
 	if response.StatusCode > http.StatusBadRequest {
-		err = e.handleError(response, body)
+		err = handleError(response, body)
 		if err != nil {
 			return &result, err
 		}
@@ -106,7 +147,7 @@ func (e Execute[T]) Get(url string) (*Response[T], error) {
 	return &result, nil
 }
 
-func (e Execute[T]) handleError(response *http.Response, body []byte) error {
+func handleError(response *http.Response, body []byte) error {
 	switch response.StatusCode {
 	case http.StatusNotFound:
 		return &APINotFoundError{
@@ -118,8 +159,7 @@ func (e Execute[T]) handleError(response *http.Response, body []byte) error {
 			StatusCode: response.StatusCode,
 			Message:    string(body),
 		}
-	case http.StatusUnauthorized:
-	case http.StatusForbidden:
+	case http.StatusUnauthorized, http.StatusForbidden:
 		return &APISecurityError{
 			StatusCode: response.StatusCode,
 			Message:    string(body),

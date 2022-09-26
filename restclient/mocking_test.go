@@ -33,7 +33,7 @@ func TestMockResponse_AddMockRequest(t *testing.T) {
 	}
 	restClient := restclient.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetUserResponse(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetUsersResponse(), restclient.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -55,13 +55,13 @@ func TestExecute_GetMock(t *testing.T) {
 	}
 	restClient := restclient.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetUserResponse(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetUsersResponse(), restclient.NoNetworkError()).
 		Build()
 
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
-		Execute[[]UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		Read[[]UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, actual)
@@ -83,8 +83,8 @@ func TestExecute_GetMockError(t *testing.T) {
 
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
-		Execute[[]UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		Read[[]UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
 	assert.NotNil(t, actual)
@@ -102,8 +102,8 @@ func TestExecute_GetMockConversionError(t *testing.T) {
 
 	var result restclient.Response[UserResponse]
 	actual, err := restclient.
-		Execute[UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		Read[UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
 	assert.Equal(t, "Internal mocking error. ", err.Error())
@@ -122,26 +122,26 @@ func TestExecute_GetMockNetworkError(t *testing.T) {
 
 	var result restclient.Response[[]UserResponse]
 	actual, err := restclient.
-		Execute[[]UserResponse]{RESTClient: restClient}.
-		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", result)
+		Read[[]UserResponse]{RESTClient: restClient}.
+		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
 	assert.NotNil(t, actual)
 }
 
-func TestExecute_Intercept(t *testing.T) {
+func TestExecute_Intercept_MethodGet(t *testing.T) {
 	mockRequest := restclient.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
 	restClient := restclient.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetUserResponse(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetUsersResponse(), restclient.NoNetworkError()).
 		Build()
 
 	actual, err := restclient.
-		Execute[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users")
+		Read[[]UserResponse]{RESTClient: restClient}.
+		Get("https://gorest.co.in/public/v2/users", nil)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, actual)
@@ -150,7 +150,40 @@ func TestExecute_Intercept(t *testing.T) {
 	assert.Equal(t, "John Doe", actual.Data[0].Name)
 }
 
-func GetUserResponse() restclient.Response[[]UserResponse] {
+func TestExecute_Intercept_MethodPost(t *testing.T) {
+	mockRequest := restclient.MockRequest{
+		Method: http.MethodPost,
+		URL:    "https://gorest.co.in/public/v2/users",
+	}
+	restClient := restclient.MockResponse[UserResponse]{}.
+		NewRESTClient().
+		AddMockRequest(mockRequest, GetUserResponse(), restclient.NoNetworkError()).
+		Build()
+
+	userResponse := UserResponse{Name: "John Doe"}
+
+	actual, err := restclient.
+		Write[UserResponse, UserResponse]{RESTClient: restClient}.
+		Post("https://gorest.co.in/public/v2/users", userResponse, nil) //nolint:nolintlint,typecheck
+
+	assert.NoError(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, int64(1), actual.Data.ID)
+	assert.Equal(t, "John Doe", actual.Data.Name)
+}
+
+func GetUserResponse() restclient.Response[UserResponse] {
+	userResponse := UserResponse{
+		ID:   int64(1),
+		Name: "John Doe",
+	}
+	return restclient.Response[UserResponse]{
+		Data:   userResponse,
+		Status: http.StatusOK,
+	}
+}
+
+func GetUsersResponse() restclient.Response[[]UserResponse] {
 	userResponse := UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",

@@ -14,9 +14,9 @@ func (e *MockError) Error() string {
 	return e.Message
 }
 
-type Tuple[T any] struct {
+type Tuple[TOutput any] struct {
 	Method   string
-	Response *Response[T]
+	Response *Response[TOutput]
 	Error    error
 }
 
@@ -28,12 +28,12 @@ func NetworkError() error {
 	return errors.New("network error")
 }
 
-type MockResponse[T any] struct {
-	Responses map[uint64]Tuple[T]
+type MockResponse[TOutput any] struct {
+	Responses map[uint64]Tuple[TOutput]
 }
 
-func (mockResponse MockResponse[T]) NewRESTClient() *MockResponse[T] {
-	mockResponse.Responses = make(map[uint64]Tuple[T])
+func (mockResponse MockResponse[TOutput]) NewRESTClient() *MockResponse[TOutput] {
+	mockResponse.Responses = make(map[uint64]Tuple[TOutput])
 	return &mockResponse
 }
 
@@ -49,9 +49,9 @@ func (mockRequest MockRequest) GetHashCode() uint64 {
 	return hash
 }
 
-func (mockResponse MockResponse[T]) AddMockRequest(mockRequest MockRequest, response Response[T], err error) *MockResponse[T] {
+func (mockResponse MockResponse[TOutput]) AddMockRequest(mockRequest MockRequest, response Response[TOutput], err error) *MockResponse[TOutput] {
 	hash := mockRequest.GetHashCode()
-	mockResponse.Responses[hash] = Tuple[T]{
+	mockResponse.Responses[hash] = Tuple[TOutput]{
 		Method:   mockRequest.Method,
 		Response: &response,
 		Error:    err,
@@ -59,17 +59,17 @@ func (mockResponse MockResponse[T]) AddMockRequest(mockRequest MockRequest, resp
 	return &mockResponse
 }
 
-func (mockResponse MockResponse[T]) Build() *RESTClient {
+func (mockResponse MockResponse[TOutput]) Build() *RESTClient {
 	return &RESTClient{
 		testingMode: true,
 		Mock:        mockResponse.Responses,
 	}
 }
 
-func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Response[T], error) {
-	mocks, boxing := e.RESTClient.Mock.(map[uint64]Tuple[T])
+func get[TOutput any](reference any, method string, url string) (*Tuple[TOutput], error) {
+	mocks, boxing := reference.(map[uint64]Tuple[TOutput])
 	if !boxing {
-		return &result, &MockError{Message: "Internal mocking error. "}
+		return nil, &MockError{Message: "Internal mocking error. "}
 	}
 	mockedRequest := MockRequest{
 		Method: method,
@@ -77,8 +77,24 @@ func (e Execute[T]) GetMock(method string, url string, result Response[T]) (*Res
 	}
 	mock := mocks[mockedRequest.GetHashCode()]
 	if mock.Response.Status != http.StatusOK {
-		return &result, &APIError{Message: "mocked api error"}
+		return nil, &APIError{Message: "mocked api error"}
 	}
 
+	return &mock, nil
+}
+
+func (e Read[TOutput]) GetMock(method string, url string, result *Response[TOutput]) (*Response[TOutput], error) {
+	mock, err := get[TOutput](e.RESTClient.Mock, method, url)
+	if err != nil {
+		return result, &MockError{Message: "Internal mocking error. "}
+	}
+	return mock.Response, mock.Error
+}
+
+func (e Write[TInput, TOutput]) GetMock(method string, url string, result *Response[TOutput]) (*Response[TOutput], error) {
+	mock, err := get[TOutput](e.RESTClient.Mock, method, url)
+	if err != nil {
+		return result, &MockError{Message: "Internal mocking error. "}
+	}
 	return mock.Response, mock.Error
 }
