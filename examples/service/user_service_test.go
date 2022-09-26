@@ -17,9 +17,14 @@ func (m *MockUserClient[TOutput]) GetUsers() ([]service.UserResponse, error) {
 	return args.Get(0).([]service.UserResponse), args.Error(1)
 }
 
-func (m *MockUserClient[TOutput]) CreateUser(service.UserRequest) error {
+func (m *MockUserClient[TOutput]) GetUser(int64) (*service.UserResponse, error) {
 	args := m.Called()
-	return args.Error(0)
+	return args.Get(0).(*service.UserResponse), args.Error(1)
+}
+
+func (m *MockUserClient[TOutput]) CreateUser(service.UserRequest) (int64, error) {
+	args := m.Called()
+	return args.Get(0).(int64), args.Error(1)
 }
 
 func Test(t *testing.T) {
@@ -39,19 +44,19 @@ func Test(t *testing.T) {
 func TestCreate(t *testing.T) {
 	userClient := new(MockUserClient[service.UserResponse])
 	userDto := &service.UserDto{FullName: "John Doe"}
-	userClient.On("CreateUser").Return(GetUser(userDto))
+	userClient.On("CreateUser").Return(GetUser())
 	userService := service.NewUserService(userClient)
 
-	err := userService.CreateUser(*userDto)
+	actual, err := userService.CreateUser(*userDto)
 
 	assert.NoError(t, err)
-	assert.Equal(t, int64(1), userDto.ID)
+	assert.NotNil(t, actual)
+	assert.Equal(t, int64(1), actual.ID)
 	assert.Equal(t, "John Doe", userDto.FullName)
 }
 
-func GetUser(userDto *service.UserDto) error {
-	userDto.ID = int64(1)
-	return nil
+func GetUser() (int64, error) {
+	return int64(1), nil
 }
 
 func TestError(t *testing.T) {

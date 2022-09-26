@@ -60,7 +60,7 @@ func TestPostOk(t *testing.T) {
 	}
 
 	userResponse, err := restclient.
-		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[service.UserRequest, service.UserResponse]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.NoError(t, err)
