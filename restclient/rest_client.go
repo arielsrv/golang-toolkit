@@ -10,16 +10,23 @@ import (
 	"strings"
 )
 
-type REST[T any] interface {
-	Get(url string) (*Response[T], error)
-	Post(url string, request T) (*Response[T], error)
+type RESTQuery[TOutput any] interface {
+	Get(url string) (*Response[TOutput], error)
+}
+
+type RESTCommand[TInput any, TOutput any] interface {
+	Post(url string, request TInput) (*Response[TOutput], error)
 }
 
 type IClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type Execute[T any] struct {
+type Query[TOutput any] struct {
+	RESTClient *RESTClient
+}
+
+type CommandQuery[TInput any, TOutput any] struct {
 	RESTClient *RESTClient
 }
 
@@ -30,8 +37,8 @@ type RESTClient struct {
 	Mock        any
 }
 
-type Response[T any] struct {
-	Data    T
+type Response[TOutput any] struct {
+	Data    TOutput
 	Status  int
 	Headers Headers
 }
@@ -67,12 +74,12 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 	}
 }
 
-func (e Execute[T]) Get(url string, headers Headers) (*Response[T], error) {
-	var result *Response[T]
+func (e Query[TOutput]) Get(url string, headers Headers) (*Response[TOutput], error) {
+	var result *Response[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodGet, url, result)
 	}
-	result, err := e.call(http.MethodGet, url, nil, headers)
+	result, err := call[TOutput](e.RESTClient.HTTPClient, http.MethodGet, url, nil, headers)
 	if err != nil {
 		return result, err
 	}
@@ -80,8 +87,8 @@ func (e Execute[T]) Get(url string, headers Headers) (*Response[T], error) {
 	return result, nil
 }
 
-func (e Execute[T]) Post(url string, request T, headers Headers) (*Response[T], error) {
-	var result *Response[T]
+func (e CommandQuery[TInput, TOutput]) Post(url string, request TInput, headers Headers) (*Response[TOutput], error) {
+	var result *Response[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodPost, url, result)
 	}
@@ -90,7 +97,7 @@ func (e Execute[T]) Post(url string, request T, headers Headers) (*Response[T], 
 		return result, err
 	}
 	reader := bytes.NewReader(binary)
-	result, err = e.call(http.MethodPost, url, reader, headers)
+	result, err = call[TOutput](e.RESTClient.HTTPClient, http.MethodPost, url, reader, headers)
 	if err != nil {
 		return result, err
 	}
@@ -98,8 +105,8 @@ func (e Execute[T]) Post(url string, request T, headers Headers) (*Response[T], 
 	return result, nil
 }
 
-func (e Execute[T]) call(method string, url string, data io.Reader, headers Headers) (*Response[T], error) {
-	var result Response[T]
+func call[TOutput any](client IClient, method string, url string, data io.Reader, headers Headers) (*Response[TOutput], error) {
+	var result Response[TOutput]
 	request, err := http.NewRequestWithContext(context.Background(), method, url, data)
 	if err != nil {
 		return nil, err
@@ -108,7 +115,7 @@ func (e Execute[T]) call(method string, url string, data io.Reader, headers Head
 	for key, value := range headers {
 		request.Header.Set(key, value)
 	}
-	response, err := e.RESTClient.HTTPClient.Do(request)
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +133,7 @@ func (e Execute[T]) call(method string, url string, data io.Reader, headers Head
 	}
 
 	if response.StatusCode > http.StatusBadRequest {
-		err = e.handleError(response, body)
+		err = handleError(response, body)
 		if err != nil {
 			return &result, err
 		}
@@ -140,7 +147,7 @@ func (e Execute[T]) call(method string, url string, data io.Reader, headers Head
 	return &result, nil
 }
 
-func (e Execute[T]) handleError(response *http.Response, body []byte) error {
+func handleError(response *http.Response, body []byte) error {
 	switch response.StatusCode {
 	case http.StatusNotFound:
 		return &APINotFoundError{

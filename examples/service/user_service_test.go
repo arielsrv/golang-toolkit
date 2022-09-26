@@ -8,16 +8,16 @@ import (
 	"testing"
 )
 
-type MockUserClient[T any] struct {
+type MockUserClient[TOutput any] struct {
 	mock.Mock
 }
 
-func (m *MockUserClient[T]) GetUsers() ([]service.UserResponse, error) {
+func (m *MockUserClient[TOutput]) GetUsers() ([]service.UserResponse, error) {
 	args := m.Called()
 	return args.Get(0).([]service.UserResponse), args.Error(1)
 }
 
-func (m *MockUserClient[T]) CreateUser(service.UserRequest) error {
+func (m *MockUserClient[TOutput]) CreateUser(service.UserRequest) error {
 	args := m.Called()
 	return args.Error(0)
 }

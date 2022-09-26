@@ -11,7 +11,7 @@ func main() {
 	restPool, err := restclient.
 		NewRESTPoolBuilder().
 		WithName("users").
-		WithTimeout(time.Millisecond * 1000).
+		WithTimeout(time.Millisecond * 5000).
 		WithMaxConnectionsPerHost(20).
 		WithMaxIdleConnectionsPerHost(20).
 		Build()
@@ -36,7 +36,7 @@ func main() {
 
 	userDto := service.UserDto{
 		FullName: "John Doe",
-		Email:    "john@doe.com",
+		Email:    "john2@doe.com",
 		Gender:   "male",
 		Status:   "active",
 	}
