@@ -1,5 +1,7 @@
 package restclient
 
+import "net/http"
+
 type APIError struct {
 	StatusCode int
 	Message    string
@@ -34,4 +36,8 @@ type APISecurityError struct {
 
 func (e *APISecurityError) Error() string {
 	return e.Message
+}
+
+func IsOk(statusCode int) bool {
+	return statusCode < http.StatusBadRequest
 }

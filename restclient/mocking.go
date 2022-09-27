@@ -3,7 +3,6 @@ package restclient
 import (
 	"errors"
 	"github.com/arielsrv/golang-toolkit/restclient/hashcode"
-	"net/http"
 )
 
 type MockError struct {
@@ -75,8 +74,9 @@ func get[TOutput any](reference any, method string, url string) (*Tuple[TOutput]
 		Method: method,
 		URL:    url,
 	}
-	mock := mocks[mockedRequest.GetHashCode()]
-	if mock.Response.Status != http.StatusOK {
+	hashCode := mockedRequest.GetHashCode()
+	mock := mocks[hashCode]
+	if !IsOk(mock.Response.Status) {
 		return nil, &APIError{Message: "mocked api error"}
 	}
 

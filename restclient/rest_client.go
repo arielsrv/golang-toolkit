@@ -134,7 +134,7 @@ func execute[TOutput any](client IClient, method string, url string, data io.Rea
 		apiResponse.Headers.Put(key, value)
 	}
 
-	if response.StatusCode >= http.StatusBadRequest {
+	if !IsOk(response.StatusCode) {
 		err = handleError(response, body)
 		if err != nil {
 			return &apiResponse, err
