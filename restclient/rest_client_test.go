@@ -124,6 +124,31 @@ func TestGetBadRequest(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, userResponse.Status)
 }
 
+func TestGetToManyRequest(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(TooManyRequest())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	userRequest := service.UserRequest{
+		Name: "John Doe",
+	}
+
+	userResponse, err := restclient.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Post("api.internal.iskaypet.com/users", userRequest, nil)
+
+	assert.Error(t, err)
+	assert.Equal(t, "too many request", err.Error())
+	var restClientError *restclient.APIError
+	assert.True(t, errors.As(err, &restClientError))
+	assert.NotNil(t, userResponse)
+	assert.Equal(t, http.StatusTooManyRequests, userResponse.Status)
+}
+
 func TestGetSecurityError(t *testing.T) {
 	httpClient := new(MockClient)
 	httpClient.
@@ -264,6 +289,13 @@ func BadRequest() (*http.Response, error) {
 	return &http.Response{
 		StatusCode: http.StatusBadRequest,
 		Body:       io.NopCloser(bytes.NewBuffer([]byte("bad request"))),
+	}, nil
+}
+
+func TooManyRequest() (*http.Response, error) {
+	return &http.Response{
+		StatusCode: http.StatusTooManyRequests,
+		Body:       io.NopCloser(bytes.NewBuffer([]byte("too many request"))),
 	}, nil
 }
 
