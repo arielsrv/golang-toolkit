@@ -5,7 +5,7 @@ import (
 )
 
 type Comparer interface {
-	GetHashCode() int
+	GetHashCode() uint64
 }
 
 func String(value string) uint64 {
