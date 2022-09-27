@@ -55,6 +55,10 @@ func main() {
 		log.Fatalf("Error Users %s", err)
 	}
 
+	if len(usersDto) == 0 {
+		log.Fatalf("Empty Users")
+	}
+
 	userID := usersDto[0].ID
 	log.Printf("Get user by id %d ...", userID)
 	search, err := userService.GetUser(userID)

@@ -32,7 +32,7 @@ func TestOkGetUser(t *testing.T) {
 		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users/1",
-		}, restclient.Response[service.UserResponse]{
+		}, restclient.APIResponse[service.UserResponse]{
 			Data:    GetAPICollectionResponse().Data[0],
 			Status:  http.StatusOK,
 			Headers: nil,
@@ -124,7 +124,7 @@ func TestApiError(t *testing.T) {
 	assert.Nil(t, actual)
 }
 
-func GetAPICollectionResponse() restclient.Response[[]service.UserResponse] {
+func GetAPICollectionResponse() restclient.APIResponse[[]service.UserResponse] {
 	userResponse := service.UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
@@ -132,33 +132,33 @@ func GetAPICollectionResponse() restclient.Response[[]service.UserResponse] {
 	var result []service.UserResponse
 	result = append(result, userResponse)
 
-	return restclient.Response[[]service.UserResponse]{
+	return restclient.APIResponse[[]service.UserResponse]{
 		Data:   result,
 		Status: http.StatusOK,
 	}
 }
 
-func GetAPIResponse() restclient.Response[service.UserResponse] {
-	return restclient.Response[service.UserResponse]{
+func GetAPIResponse() restclient.APIResponse[service.UserResponse] {
+	return restclient.APIResponse[service.UserResponse]{
 		Data:   GetAPICollectionResponse().Data[0],
 		Status: http.StatusOK,
 	}
 }
 
-func GetAPIPostResponse() restclient.Response[service.UserResponse] {
+func GetAPIPostResponse() restclient.APIResponse[service.UserResponse] {
 	userResponse := service.UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
 	}
 
-	return restclient.Response[service.UserResponse]{
+	return restclient.APIResponse[service.UserResponse]{
 		Data:   userResponse,
 		Status: http.StatusOK,
 	}
 }
 
-func GetAPIError() restclient.Response[[]service.UserResponse] {
-	return restclient.Response[[]service.UserResponse]{
+func GetAPIError() restclient.APIResponse[[]service.UserResponse] {
+	return restclient.APIResponse[[]service.UserResponse]{
 		Data:   nil,
 		Status: http.StatusInternalServerError,
 	}

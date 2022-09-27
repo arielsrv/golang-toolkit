@@ -16,7 +16,7 @@ func (e *MockError) Error() string {
 
 type Tuple[TOutput any] struct {
 	Method   string
-	Response *Response[TOutput]
+	Response *APIResponse[TOutput]
 	Error    error
 }
 
@@ -49,7 +49,7 @@ func (mockRequest MockRequest) GetHashCode() uint64 {
 	return hash
 }
 
-func (mockResponse MockResponse[TOutput]) AddMockRequest(mockRequest MockRequest, response Response[TOutput], err error) *MockResponse[TOutput] {
+func (mockResponse MockResponse[TOutput]) AddMockRequest(mockRequest MockRequest, response APIResponse[TOutput], err error) *MockResponse[TOutput] {
 	hash := mockRequest.GetHashCode()
 	mockResponse.Responses[hash] = Tuple[TOutput]{
 		Method:   mockRequest.Method,
@@ -83,7 +83,7 @@ func get[TOutput any](reference any, method string, url string) (*Tuple[TOutput]
 	return &mock, nil
 }
 
-func (e Read[TOutput]) GetMock(method string, url string, result *Response[TOutput]) (*Response[TOutput], error) {
+func (e Read[TOutput]) GetMock(method string, url string, result *APIResponse[TOutput]) (*APIResponse[TOutput], error) {
 	mock, err := get[TOutput](e.RESTClient.Mock, method, url)
 	if err != nil {
 		return result, &MockError{Message: "Internal mocking error. "}
@@ -91,7 +91,7 @@ func (e Read[TOutput]) GetMock(method string, url string, result *Response[TOutp
 	return mock.Response, mock.Error
 }
 
-func (e Write[TInput, TOutput]) GetMock(method string, url string, result *Response[TOutput]) (*Response[TOutput], error) {
+func (e Write[TInput, TOutput]) GetMock(method string, url string, result *APIResponse[TOutput]) (*APIResponse[TOutput], error) {
 	mock, err := get[TOutput](e.RESTClient.Mock, method, url)
 	if err != nil {
 		return result, err

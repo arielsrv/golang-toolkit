@@ -11,11 +11,11 @@ import (
 )
 
 type RESTQuery[TOutput any] interface {
-	Get(url string) (*Response[TOutput], error)
+	Get(url string) (*APIResponse[TOutput], error)
 }
 
 type RESTCommand[TInput any, TOutput any] interface {
-	Post(url string, request TInput) (*Response[TOutput], error)
+	Post(url string, request TInput) (*APIResponse[TOutput], error)
 }
 
 type IClient interface {
@@ -37,7 +37,7 @@ type RESTClient struct {
 	Mock        any
 }
 
-type Response[TOutput any] struct {
+type APIResponse[TOutput any] struct {
 	Data    TOutput
 	Status  int
 	Headers Headers
@@ -74,12 +74,12 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 	}
 }
 
-func (e Read[TOutput]) Get(url string, headers Headers) (*Response[TOutput], error) {
-	var result *Response[TOutput]
+func (e Read[TOutput]) Get(url string, headers Headers) (*APIResponse[TOutput], error) {
+	var result *APIResponse[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodGet, url, result)
 	}
-	result, err := call[TOutput](e.RESTClient.HTTPClient, http.MethodGet, url, nil, headers)
+	result, err := execute[TOutput](e.RESTClient.HTTPClient, http.MethodGet, url, nil, headers)
 	if err != nil {
 		return result, err
 	}
@@ -87,8 +87,8 @@ func (e Read[TOutput]) Get(url string, headers Headers) (*Response[TOutput], err
 	return result, nil
 }
 
-func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers) (*Response[TOutput], error) {
-	var result *Response[TOutput]
+func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers) (*APIResponse[TOutput], error) {
+	var result *APIResponse[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodPost, url, result)
 	}
@@ -97,7 +97,7 @@ func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers
 		return result, err
 	}
 	reader := bytes.NewReader(binary)
-	result, err = call[TOutput](e.RESTClient.HTTPClient, http.MethodPost, url, reader, headers)
+	result, err = execute[TOutput](e.RESTClient.HTTPClient, http.MethodPost, url, reader, headers)
 	if err != nil {
 		return result, err
 	}
@@ -105,8 +105,7 @@ func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers
 	return result, nil
 }
 
-func call[TOutput any](client IClient, method string, url string, data io.Reader, headers Headers) (*Response[TOutput], error) {
-	var result Response[TOutput]
+func execute[TOutput any](client IClient, method string, url string, data io.Reader, headers Headers) (*APIResponse[TOutput], error) {
 	request, err := http.NewRequestWithContext(context.Background(), method, url, data)
 	if err != nil {
 		return nil, err
@@ -115,36 +114,39 @@ func call[TOutput any](client IClient, method string, url string, data io.Reader
 	for key, value := range headers {
 		request.Header.Set(key, value)
 	}
+
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
 
+	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
-	defer func(Body io.ReadCloser) {
-		err = Body.Close()
-	}(response.Body)
+	if err != nil {
+		return nil, err
+	}
 
-	result.Status = response.StatusCode
-	result.Headers = make(map[string]string)
+	var apiResponse APIResponse[TOutput]
+	apiResponse.Status = response.StatusCode
+	apiResponse.Headers = make(map[string]string)
 	for key, values := range response.Header {
 		value := strings.Join(values, ",")
-		result.Headers.Put(key, value)
+		apiResponse.Headers.Put(key, value)
 	}
 
 	if response.StatusCode >= http.StatusBadRequest {
 		err = handleError(response, body)
 		if err != nil {
-			return &result, err
+			return &apiResponse, err
 		}
 	}
 
-	err = json.Unmarshal(body, &result.Data)
+	err = json.Unmarshal(body, &apiResponse.Data)
 	if err != nil {
-		return &result, err
+		return &apiResponse, err
 	}
 
-	return &result, nil
+	return &apiResponse, nil
 }
 
 func handleError(response *http.Response, body []byte) error {
