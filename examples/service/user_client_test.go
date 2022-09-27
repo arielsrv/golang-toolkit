@@ -14,7 +14,7 @@ func TestOkGet(t *testing.T) {
 		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
-		}, GetAPIResponse(), restclient.NoNetworkError()).
+		}, GetAPICollectionResponse(), restclient.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -33,7 +33,7 @@ func TestOkGetUser(t *testing.T) {
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users/1",
 		}, restclient.Response[service.UserResponse]{
-			Data:    GetAPIResponse().Data[0],
+			Data:    GetAPICollectionResponse().Data[0],
 			Status:  http.StatusOK,
 			Headers: nil,
 		}, restclient.NoNetworkError()).
@@ -76,7 +76,7 @@ func TestNetworkError(t *testing.T) {
 		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
-		}, GetAPIResponse(), restclient.NetworkError()).
+		}, GetAPICollectionResponse(), restclient.NetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -84,6 +84,24 @@ func TestNetworkError(t *testing.T) {
 	userClient := service.NewUserClient(*restClient)
 
 	actual, err := userClient.GetUsers()
+	assert.Error(t, err)
+	assert.Nil(t, actual)
+}
+
+func TestNetworkErrorGetUser(t *testing.T) {
+	restClient := restclient.MockResponse[service.UserResponse]{}.
+		NewRESTClient().
+		AddMockRequest(restclient.MockRequest{
+			Method: http.MethodGet,
+			URL:    "https://gorest.co.in/public/v2/users/1",
+		}, GetAPIResponse(), restclient.NetworkError()).
+		Build()
+
+	assert.NotNil(t, restClient)
+
+	userClient := service.NewUserClient(*restClient)
+
+	actual, err := userClient.GetUser(int64(1))
 	assert.Error(t, err)
 	assert.Nil(t, actual)
 }
@@ -106,7 +124,7 @@ func TestApiError(t *testing.T) {
 	assert.Nil(t, actual)
 }
 
-func GetAPIResponse() restclient.Response[[]service.UserResponse] {
+func GetAPICollectionResponse() restclient.Response[[]service.UserResponse] {
 	userResponse := service.UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
@@ -116,6 +134,13 @@ func GetAPIResponse() restclient.Response[[]service.UserResponse] {
 
 	return restclient.Response[[]service.UserResponse]{
 		Data:   result,
+		Status: http.StatusOK,
+	}
+}
+
+func GetAPIResponse() restclient.Response[service.UserResponse] {
+	return restclient.Response[service.UserResponse]{
+		Data:   GetAPICollectionResponse().Data[0],
 		Status: http.StatusOK,
 	}
 }
