@@ -132,7 +132,7 @@ func call[TOutput any](client IClient, method string, url string, data io.Reader
 		result.Headers.Put(key, value)
 	}
 
-	if response.StatusCode > http.StatusBadRequest {
+	if response.StatusCode >= http.StatusBadRequest {
 		err = handleError(response, body)
 		if err != nil {
 			return &result, err

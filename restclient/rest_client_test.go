@@ -99,6 +99,31 @@ func TestGetNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, userResponse.Status)
 }
 
+func TestGetBadRequest(t *testing.T) {
+	httpClient := new(MockClient)
+	httpClient.
+		On("Do").
+		Return(BadRequest())
+
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
+
+	userRequest := service.UserRequest{
+		Name: "John Doe",
+	}
+
+	userResponse, err := restclient.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Post("api.internal.iskaypet.com/users", userRequest, nil)
+
+	assert.Error(t, err)
+	assert.Equal(t, "bad request", err.Error())
+	var restClientError *restclient.APIBadRequestError
+	assert.True(t, errors.As(err, &restClientError))
+	assert.NotNil(t, userResponse)
+	assert.Equal(t, http.StatusBadRequest, userResponse.Status)
+}
+
 func TestGetSecurityError(t *testing.T) {
 	httpClient := new(MockClient)
 	httpClient.
@@ -232,6 +257,13 @@ func NotFound() (*http.Response, error) {
 	return &http.Response{
 		StatusCode: http.StatusNotFound,
 		Body:       io.NopCloser(bytes.NewBuffer([]byte("not found"))),
+	}, nil
+}
+
+func BadRequest() (*http.Response, error) {
+	return &http.Response{
+		StatusCode: http.StatusBadRequest,
+		Body:       io.NopCloser(bytes.NewBuffer([]byte("bad request"))),
 	}, nil
 }
 
