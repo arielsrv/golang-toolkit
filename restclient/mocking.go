@@ -43,8 +43,8 @@ type MockRequest struct {
 
 func (mockRequest MockRequest) GetHashCode() uint64 {
 	hash := uint64(7)
-	hash = uint64(31)*hash + hashcode.String(mockRequest.Method)
-	hash = uint64(31)*hash + hashcode.String(mockRequest.URL)
+	hash = uint64(31)*hash + hashcode.GetValue(mockRequest.Method)
+	hash = uint64(31)*hash + hashcode.GetValue(mockRequest.URL)
 	return hash
 }
 

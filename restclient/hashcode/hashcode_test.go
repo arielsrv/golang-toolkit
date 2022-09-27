@@ -9,7 +9,7 @@ import (
 )
 
 func Test(t *testing.T) {
-	value := hashcode.String("hello world!")
+	value := hashcode.GetValue("hello world!")
 	assert.Equal(t, uint64(0x58735284b97b86bc), value)
 }
 
