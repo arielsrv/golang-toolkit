@@ -153,22 +153,23 @@ func handleError(response *http.Response, body []byte) error {
 	switch response.StatusCode {
 	case http.StatusNotFound:
 		return &APINotFoundError{
-			StatusCode: response.StatusCode,
-			Message:    string(body),
+			*getAPIError(response.StatusCode, body),
 		}
 	case http.StatusBadRequest:
 		return &APIBadRequestError{
-			StatusCode: response.StatusCode,
-			Message:    string(body),
+			*getAPIError(response.StatusCode, body),
 		}
 	case http.StatusUnauthorized, http.StatusForbidden:
 		return &APISecurityError{
-			StatusCode: response.StatusCode,
-			Message:    string(body),
+			*getAPIError(response.StatusCode, body),
 		}
 	}
+	return getAPIError(response.StatusCode, body)
+}
+
+func getAPIError(statusCode int, body []byte) *APIError {
 	return &APIError{
-		StatusCode: response.StatusCode,
+		StatusCode: statusCode,
 		Message:    string(body),
 	}
 }

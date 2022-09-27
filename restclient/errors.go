@@ -12,8 +12,7 @@ func (e *APIError) Error() string {
 }
 
 type APINotFoundError struct {
-	StatusCode int
-	Message    string
+	APIError
 }
 
 func (e *APINotFoundError) Error() string {
@@ -21,8 +20,7 @@ func (e *APINotFoundError) Error() string {
 }
 
 type APIBadRequestError struct {
-	StatusCode int
-	Message    string
+	APIError
 }
 
 func (e *APIBadRequestError) Error() string {
@@ -30,8 +28,7 @@ func (e *APIBadRequestError) Error() string {
 }
 
 type APISecurityError struct {
-	StatusCode int
-	Message    string
+	APIError
 }
 
 func (e *APISecurityError) Error() string {
