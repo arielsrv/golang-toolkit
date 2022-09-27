@@ -86,7 +86,7 @@ func get[TOutput any](reference any, method string, url string) (*Tuple[TOutput]
 func (e Read[TOutput]) GetMock(method string, url string, result *APIResponse[TOutput]) (*APIResponse[TOutput], error) {
 	mock, err := get[TOutput](e.RESTClient.Mock, method, url)
 	if err != nil {
-		return result, &MockError{Message: "Internal mocking error. "}
+		return result, err
 	}
 	return mock.Response, mock.Error
 }
