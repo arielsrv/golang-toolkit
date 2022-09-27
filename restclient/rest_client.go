@@ -120,7 +120,9 @@ func execute[TOutput any](client IClient, method string, url string, data io.Rea
 		return nil, err
 	}
 
-	defer response.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(response.Body)
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err

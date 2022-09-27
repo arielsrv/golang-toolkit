@@ -10,6 +10,6 @@ type Comparer interface {
 
 func GetValue(value string) uint64 {
 	hash := fnv.New64()
-	hash.Write([]byte(value))
+	_, _ = hash.Write([]byte(value))
 	return hash.Sum64()
 }
