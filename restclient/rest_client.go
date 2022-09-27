@@ -22,19 +22,19 @@ type IClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type Read[TOutput any] struct {
-	RESTClient *RESTClient
-}
-
-type Write[TInput any, TOutput any] struct {
-	RESTClient *RESTClient
-}
-
 type RESTClient struct {
 	HTTPClient  IClient
 	restPool    RESTPool
 	testingMode bool
 	Mock        any
+}
+
+type Read[TOutput any] struct {
+	*RESTClient
+}
+
+type Write[TInput any, TOutput any] struct {
+	*RESTClient
 }
 
 type APIResponse[TOutput any] struct {
