@@ -17,9 +17,9 @@ tasks:
     desc: Makes report coverage.
     cmds:
       - mkdir -p $COVERAGE_FOLDER
-      - go test $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]') -covermode=count -coverpkg=./... -coverprofile coverage/coverage.out
-      - go tool cover -html coverage/coverage.out -o coverage/coverage.html
-      - go tool cover -func=coverage/coverage.out
+      - go test $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]') -covermode=count -coverprofile=coverage.out
+      - go tool cover -html coverage.out -o coverage.html
+      - go tool cover -func=coverage.out -o=coverage.out
   clean:
     desc: Clean binaries and reports.
     cmds:

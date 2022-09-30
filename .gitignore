@@ -18,4 +18,4 @@
 .idea
 .vscode
 build/
-coverage/
+coverage.html
