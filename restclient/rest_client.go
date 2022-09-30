@@ -170,8 +170,5 @@ func handleError(response *http.Response, body []byte) error {
 }
 
 func getAPIError(statusCode int, body []byte) *APIError {
-	return &APIError{
-		StatusCode: statusCode,
-		Message:    string(body),
-	}
+	return NewAPIError(statusCode, string(body))
 }
