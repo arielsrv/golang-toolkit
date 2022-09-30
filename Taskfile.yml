@@ -20,11 +20,6 @@ tasks:
       - go test $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]') -covermode=count -coverprofile=coverage.out
       - go tool cover -html coverage.out -o coverage.html
       - go tool cover -func=coverage.out -o=coverage.out
-  clean:
-    desc: Clean binaries and reports.
-    cmds:
-      - rm -rf build
-      - rm -rf coverage
   download:
     desc: Run go mod tidy.
     cmds:
@@ -44,7 +39,6 @@ tasks:
   all:
     desc: Run relevant tasks.
     cmds:
-      - task: clean
       - task: download
       - task: lint
       - task: test
