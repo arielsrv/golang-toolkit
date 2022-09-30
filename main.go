@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/arielsrv/golang-toolkit/restclient/core"
-	"github.com/arielsrv/golang-toolkit/restclient/examples/service"
+	"github.com/arielsrv/golang-toolkit/examples/service"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/tjarratt/babble"
 	"log"
 	"strings"
@@ -11,7 +11,8 @@ import (
 )
 
 func main() {
-	restPool, err := core.NewRESTPoolBuilder().
+	restPool, err := restclient.
+		NewRESTPoolBuilder().
 		WithName("users").
 		WithTimeout(time.Millisecond * 1000).
 		WithMaxConnectionsPerHost(20).
@@ -22,7 +23,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	restClient := core.NewRESTClient(*restPool)
+	restClient := restclient.NewRESTClient(*restPool)
 	userClient := service.NewUserClient(*restClient)
 	userService := service.NewUserService(userClient)
 

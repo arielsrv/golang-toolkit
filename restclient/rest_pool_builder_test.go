@@ -1,14 +1,14 @@
-package core_test
+package restclient_test
 
 import (
-	"github.com/arielsrv/golang-toolkit/restclient/core"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
 func Test_Default(t *testing.T) {
-	restPool, err := core.NewRESTPoolBuilder().
+	restPool, err := restclient.NewRESTPoolBuilder().
 		MakeDefault().
 		Build()
 
@@ -22,7 +22,7 @@ func Test_Default(t *testing.T) {
 }
 
 func Test_Config(t *testing.T) {
-	restPool, err := core.NewRESTPoolBuilder().
+	restPool, err := restclient.NewRESTPoolBuilder().
 		WithName("__default__").
 		WithTimeout(time.Millisecond * 500).
 		WithIdleConnectionTimeout(time.Millisecond * 500).
@@ -48,7 +48,7 @@ func Test_Config(t *testing.T) {
 }
 
 func Test_Missing_Name(t *testing.T) {
-	restPool, err := core.NewRESTPoolBuilder().
+	restPool, err := restclient.NewRESTPoolBuilder().
 		WithTimeout(time.Millisecond * 500).
 		Build()
 

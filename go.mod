@@ -1,4 +1,4 @@
-module github.com/arielsrv/golang-toolkit/restclient
+module github.com/arielsrv/golang-toolkit
 
 go 1.19
 

@@ -1,11 +1,11 @@
-package core_test
+package restclient_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/arielsrv/golang-toolkit/restclient/core"
-	"github.com/arielsrv/golang-toolkit/restclient/examples/service"
+	"github.com/arielsrv/golang-toolkit/examples/service"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"io"
@@ -28,9 +28,11 @@ func TestGetOk(t *testing.T) {
 		On("Do").
 		Return(Ok())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
-	userResponse, err := core.Read[UserResponse]{RESTClient: &restClient}.
+	userResponse, err := restclient.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.NoError(t, err)
@@ -50,13 +52,15 @@ func TestPostOk(t *testing.T) {
 		On("Do").
 		Return(Ok())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
 	userRequest := service.UserRequest{
 		Name: "John Doe",
 	}
 
-	userResponse, err := core.Write[service.UserRequest, service.UserResponse]{RESTClient: &restClient}.
+	userResponse, err := restclient.
+		Write[service.UserRequest, service.UserResponse]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.NoError(t, err)
@@ -76,18 +80,20 @@ func TestGetNotFound(t *testing.T) {
 		On("Do").
 		Return(NotFound())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
 	userRequest := service.UserRequest{
 		Name: "John Doe",
 	}
 
-	userResponse, err := core.Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+	userResponse, err := restclient.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "not found", err.Error())
-	var restClientError *core.APINotFoundError
+	var restClientError *restclient.APINotFoundError
 	assert.True(t, errors.As(err, &restClientError))
 	assert.NotNil(t, userResponse)
 	assert.Equal(t, http.StatusNotFound, userResponse.Status)
@@ -99,18 +105,20 @@ func TestGetBadRequest(t *testing.T) {
 		On("Do").
 		Return(BadRequest())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
 	userRequest := service.UserRequest{
 		Name: "John Doe",
 	}
 
-	userResponse, err := core.Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+	userResponse, err := restclient.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "bad request", err.Error())
-	var restClientError *core.APIBadRequestError
+	var restClientError *restclient.APIBadRequestError
 	assert.True(t, errors.As(err, &restClientError))
 	assert.NotNil(t, userResponse)
 	assert.Equal(t, http.StatusBadRequest, userResponse.Status)
@@ -122,18 +130,20 @@ func TestGetToManyRequest(t *testing.T) {
 		On("Do").
 		Return(TooManyRequest())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
 	userRequest := service.UserRequest{
 		Name: "John Doe",
 	}
 
-	userResponse, err := core.Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+	userResponse, err := restclient.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "too many request", err.Error())
-	var restClientError *core.APIError
+	var restClientError *restclient.APIError
 	assert.True(t, errors.As(err, &restClientError))
 	assert.NotNil(t, userResponse)
 	assert.Equal(t, http.StatusTooManyRequests, userResponse.Status)
@@ -145,18 +155,20 @@ func TestGetSecurityError(t *testing.T) {
 		On("Do").
 		Return(Unauthorized())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
 	userRequest := service.UserRequest{
 		Name: "John Doe",
 	}
 
-	userResponse, err := core.Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+	userResponse, err := restclient.
+		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil) //nolint:nolintlint,typecheck
 
 	assert.Error(t, err)
 	assert.Equal(t, "unauthorized", err.Error())
-	var restClientError *core.APISecurityError
+	var restClientError *restclient.APISecurityError
 	assert.True(t, errors.As(err, &restClientError))
 	assert.NotNil(t, userResponse)
 	assert.Equal(t, http.StatusUnauthorized, userResponse.Status)
@@ -168,24 +180,26 @@ func TestPostNotFound(t *testing.T) {
 		On("Do").
 		Return(NotFound())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
-	userResponse, err := core.Read[UserResponse]{RESTClient: &restClient}.
+	userResponse, err := restclient.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "not found", err.Error())
-	var restClientError *core.APINotFoundError
+	var restClientError *restclient.APINotFoundError
 	assert.True(t, errors.As(err, &restClientError))
 	assert.NotNil(t, userResponse)
 	assert.Equal(t, http.StatusNotFound, userResponse.Status)
 }
 
 func TestNewRestClient(t *testing.T) {
-	restPool, err := core.NewRESTPoolBuilder().MakeDefault().Build()
+	restPool, err := restclient.NewRESTPoolBuilder().MakeDefault().Build()
 	assert.NoError(t, err)
 
-	restClient := core.NewRESTClient(*restPool)
+	restClient := restclient.NewRESTClient(*restPool)
 	assert.NotNil(t, restClient)
 	assert.NotNil(t, restClient.HTTPClient)
 }
@@ -196,9 +210,11 @@ func TestParsingError(t *testing.T) {
 		On("Do").
 		Return(Ok())
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
-	_, err := core.Read[[]UserResponse]{RESTClient: &restClient}.
+	_, err := restclient.
+		Read[[]UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
@@ -210,9 +226,11 @@ func TestInvalidScheme(t *testing.T) {
 		On("Do").
 		Return(Error("invalid url"))
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
-	response, err := core.Read[UserResponse]{RESTClient: &restClient}.
+	response, err := restclient.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("mailto://\\n", nil)
 
 	assert.Error(t, err)
@@ -225,9 +243,11 @@ func TestInvalidRequest(t *testing.T) {
 		On("Do").
 		Return(Error("invalid request"))
 
-	restClient := core.RESTClient{HTTPClient: httpClient}
+	restClient := restclient.
+		RESTClient{HTTPClient: httpClient}
 
-	response, err := core.Read[UserResponse]{RESTClient: &restClient}.
+	response, err := restclient.
+		Read[UserResponse]{RESTClient: &restClient}.
 		Get("api.internal.com", nil)
 
 	assert.Error(t, err)

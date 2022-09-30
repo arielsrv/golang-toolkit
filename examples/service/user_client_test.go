@@ -1,20 +1,20 @@
 package service_test
 
 import (
-	"github.com/arielsrv/golang-toolkit/restclient/core"
-	"github.com/arielsrv/golang-toolkit/restclient/examples/service"
+	"github.com/arielsrv/golang-toolkit/examples/service"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 )
 
 func TestOkGet(t *testing.T) {
-	restClient := core.MockResponse[[]service.UserResponse]{}.
+	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(core.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
-		}, GetAPICollectionResponse(), core.NoNetworkError()).
+		}, GetAPICollectionResponse(), restclient.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -27,16 +27,16 @@ func TestOkGet(t *testing.T) {
 }
 
 func TestOkGetUser(t *testing.T) {
-	restClient := core.MockResponse[service.UserResponse]{}.
+	restClient := restclient.MockResponse[service.UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(core.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users/1",
-		}, core.APIResponse[service.UserResponse]{
+		}, restclient.APIResponse[service.UserResponse]{
 			Data:    GetAPICollectionResponse().Data[0],
 			Status:  http.StatusOK,
 			Headers: nil,
-		}, core.NoNetworkError()).
+		}, restclient.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -49,12 +49,12 @@ func TestOkGetUser(t *testing.T) {
 }
 
 func TestOkPost(t *testing.T) {
-	restClient := core.MockResponse[service.UserResponse]{}.
+	restClient := restclient.MockResponse[service.UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(core.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodPost,
 			URL:    "https://gorest.co.in/public/v2/users",
-		}, GetAPIPostResponse(), core.NoNetworkError()).
+		}, GetAPIPostResponse(), restclient.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -71,12 +71,12 @@ func TestOkPost(t *testing.T) {
 }
 
 func TestNetworkError(t *testing.T) {
-	restClient := core.MockResponse[[]service.UserResponse]{}.
+	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(core.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
-		}, GetAPICollectionResponse(), core.NetworkError()).
+		}, GetAPICollectionResponse(), restclient.NetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -89,12 +89,12 @@ func TestNetworkError(t *testing.T) {
 }
 
 func TestNetworkErrorGetUser(t *testing.T) {
-	restClient := core.MockResponse[service.UserResponse]{}.
+	restClient := restclient.MockResponse[service.UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(core.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users/1",
-		}, GetAPIResponse(), core.NetworkError()).
+		}, GetAPIResponse(), restclient.NetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -107,12 +107,12 @@ func TestNetworkErrorGetUser(t *testing.T) {
 }
 
 func TestApiError(t *testing.T) {
-	restClient := core.MockResponse[[]service.UserResponse]{}.
+	restClient := restclient.MockResponse[[]service.UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(core.MockRequest{
+		AddMockRequest(restclient.MockRequest{
 			Method: http.MethodGet,
 			URL:    "https://gorest.co.in/public/v2/users",
-		}, GetAPIError(), core.NoNetworkError()).
+		}, GetAPIError(), restclient.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
@@ -124,7 +124,7 @@ func TestApiError(t *testing.T) {
 	assert.Nil(t, actual)
 }
 
-func GetAPICollectionResponse() core.APIResponse[[]service.UserResponse] {
+func GetAPICollectionResponse() restclient.APIResponse[[]service.UserResponse] {
 	userResponse := service.UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
@@ -132,33 +132,33 @@ func GetAPICollectionResponse() core.APIResponse[[]service.UserResponse] {
 	var result []service.UserResponse
 	result = append(result, userResponse)
 
-	return core.APIResponse[[]service.UserResponse]{
+	return restclient.APIResponse[[]service.UserResponse]{
 		Data:   result,
 		Status: http.StatusOK,
 	}
 }
 
-func GetAPIResponse() core.APIResponse[service.UserResponse] {
-	return core.APIResponse[service.UserResponse]{
+func GetAPIResponse() restclient.APIResponse[service.UserResponse] {
+	return restclient.APIResponse[service.UserResponse]{
 		Data:   GetAPICollectionResponse().Data[0],
 		Status: http.StatusOK,
 	}
 }
 
-func GetAPIPostResponse() core.APIResponse[service.UserResponse] {
+func GetAPIPostResponse() restclient.APIResponse[service.UserResponse] {
 	userResponse := service.UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
 	}
 
-	return core.APIResponse[service.UserResponse]{
+	return restclient.APIResponse[service.UserResponse]{
 		Data:   userResponse,
 		Status: http.StatusOK,
 	}
 }
 
-func GetAPIError() core.APIResponse[[]service.UserResponse] {
-	return core.APIResponse[[]service.UserResponse]{
+func GetAPIError() restclient.APIResponse[[]service.UserResponse] {
+	return restclient.APIResponse[[]service.UserResponse]{
 		Data:   nil,
 		Status: http.StatusInternalServerError,
 	}

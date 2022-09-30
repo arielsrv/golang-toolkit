@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/arielsrv/golang-toolkit/restclient/core"
+	"github.com/arielsrv/golang-toolkit/restclient"
 	httpheader "github.com/go-http-utils/headers"
 	"github.com/ldez/mimetype"
 	"os"
@@ -16,10 +16,10 @@ type IUserClient interface {
 
 type UserClient struct {
 	baseURL    string
-	restClient core.RESTClient
+	restClient restclient.RESTClient
 }
 
-func NewUserClient(restClient core.RESTClient) *UserClient {
+func NewUserClient(restClient restclient.RESTClient) *UserClient {
 	return &UserClient{
 		baseURL:    "https://gorest.co.in/public/v2",
 		restClient: restClient,
@@ -28,7 +28,8 @@ func NewUserClient(restClient core.RESTClient) *UserClient {
 
 func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 	apiURL := fmt.Sprintf("%s/users", userClient.baseURL)
-	response, err := core.Read[[]UserResponse]{RESTClient: &userClient.restClient}.
+	response, err := restclient.
+		Read[[]UserResponse]{RESTClient: &userClient.restClient}.
 		Get(apiURL, nil)
 
 	if err != nil {
@@ -40,7 +41,8 @@ func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 
 func (userClient UserClient) GetUser(userID int64) (*UserResponse, error) {
 	apiURL := fmt.Sprintf("%s/users/%d", userClient.baseURL, userID)
-	response, err := core.Read[UserResponse]{RESTClient: &userClient.restClient}.
+	response, err := restclient.
+		Read[UserResponse]{RESTClient: &userClient.restClient}.
 		Get(apiURL, nil)
 
 	if err != nil {
@@ -51,11 +53,12 @@ func (userClient UserClient) GetUser(userID int64) (*UserResponse, error) {
 }
 
 func (userClient UserClient) CreateUser(userRequest UserRequest) (int64, error) {
-	headers := core.Headers{}
+	headers := restclient.Headers{}
 	headers.Put(httpheader.Authorization, fmt.Sprintf("Bearer %s", os.Getenv("GOREST_TOKEN")))
 	headers.Put(httpheader.ContentType, mimetype.ApplicationJSON)
 	apiURL := fmt.Sprintf("%s/users", userClient.baseURL)
-	response, err := core.Write[UserRequest, UserResponse]{RESTClient: &userClient.restClient}.
+	response, err := restclient.
+		Write[UserRequest, UserResponse]{RESTClient: &userClient.restClient}.
 		Post(apiURL, userRequest, headers)
 
 	if err != nil {
