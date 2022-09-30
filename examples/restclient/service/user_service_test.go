@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"errors"
 	"github.com/arielsrv/golang-toolkit/examples/restclient/service"
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
@@ -52,6 +53,22 @@ func TestGetUser(t *testing.T) {
 	assert.NotNil(t, actual)
 	assert.Equal(t, int64(1), actual.ID)
 	assert.Equal(t, "John Doe", actual.FullName)
+}
+
+func TestGetError(t *testing.T) {
+	userClient := new(MockUserClient[service.UserResponse])
+	userClient.On("GetUser").Return(GetError())
+	userService := service.NewUserService(userClient)
+
+	actual, err := userService.GetUser(int64(1))
+
+	assert.Error(t, err)
+	assert.Equal(t, "client error", err.Error())
+	assert.Nil(t, actual)
+}
+
+func GetError() (*service.UserResponse, error) {
+	return nil, errors.New("client error")
 }
 
 func GetUserResponse() (*service.UserResponse, error) {
