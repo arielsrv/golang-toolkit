@@ -18,17 +18,18 @@ jobs:
         with:
           go-version: 1.19
 
+      - name: arduino/setup-task
+        uses: arduino/setup-task@v1.0.1
+
       - name: Build
-        run: go build -v ./...
+        run: task build
 
       - name: Test
-        run: go test -v ./...
+        run: task test
 
       - name: Run Test
-        run: |
-          go test -v ./... -covermode=count -coverprofile=coverage.out
-          go tool cover -func=coverage.out -o=coverage.out
-
+        run: task coverage
+        
       - name: Go Coverage Badge  # Pass the `coverage.out` output to this action
         uses: tj-actions/coverage-badge-go@v2
         with:

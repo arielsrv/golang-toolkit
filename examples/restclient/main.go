@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/arielsrv/golang-toolkit/examples/service"
+	"github.com/arielsrv/golang-toolkit/examples/restclient/service"
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/tjarratt/babble"
 	"log"

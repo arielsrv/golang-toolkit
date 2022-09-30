@@ -2,25 +2,22 @@
 version: '3'
 
 env:
-  OUTPUT_FOLDER: build
-  ENTRY_POINT: main.go
-  EXECUTABLE: app
   COVERAGE_FOLDER: coverage
 
 tasks:
   lint:
     desc: Use golangci-lint (.golangci.yml).
     cmds:
-      - golangci-lint run
+      - golangci-lint run $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
   test:
     desc: Run test.
     cmds:
-      - go test ./...
+      - go test $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
   coverage:
     desc: Makes report coverage.
     cmds:
       - mkdir -p $COVERAGE_FOLDER
-      - go test -v ./... -covermode=count -coverpkg=./... -coverprofile coverage/coverage.out
+      - go test $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]') -covermode=count -coverpkg=./... -coverprofile coverage/coverage.out
       - go tool cover -html coverage/coverage.out -o coverage/coverage.html
       - go tool cover -func=coverage/coverage.out
   clean:
@@ -31,7 +28,7 @@ tasks:
   download:
     desc: Run go mod tidy.
     cmds:
-      - go mod tidy
+      - for f in $(find . -name go.mod); do (cd $(dirname $f); go mod tidy) ; done
   upgrade:
     desc: Check for latest direct dependencies.
     cmds:
@@ -42,9 +39,8 @@ tasks:
       - app
     interactive: true
     cmds:
-      - mkdir -p $OUTPUT_FOLDER
-      - go build -v $ENTRY_POINT
-      - mv main $OUTPUT_FOLDER/$EXECUTABLE
+      - go build -v $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
+
   all:
     desc: Run relevant tasks.
     cmds:

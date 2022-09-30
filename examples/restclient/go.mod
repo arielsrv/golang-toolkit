@@ -1,13 +1,16 @@
-module github.com/arielsrv/golang-toolkit
+module github.com/arielsrv/golang-toolkit/examples/restclient
 
 go 1.19
 
 require (
+	github.com/arielsrv/golang-toolkit/restclient v0.0.0-00010101000000-000000000000
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/ldez/mimetype v0.1.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tjarratt/babble v0.0.0-20210505082055-cbca2a4833c1
 )
+
+replace github.com/arielsrv/golang-toolkit/restclient => ../../restclient
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

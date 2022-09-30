@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/arielsrv/golang-toolkit/examples/service"
 	"github.com/arielsrv/golang-toolkit/restclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -55,12 +54,12 @@ func TestPostOk(t *testing.T) {
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
 
-	userRequest := service.UserRequest{
+	userRequest := UserRequest{
 		Name: "John Doe",
 	}
 
 	userResponse, err := restclient.
-		Write[service.UserRequest, service.UserResponse]{RESTClient: &restClient}.
+		Write[UserRequest, UserResponse]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.NoError(t, err)
@@ -83,12 +82,12 @@ func TestGetNotFound(t *testing.T) {
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
 
-	userRequest := service.UserRequest{
+	userRequest := UserRequest{
 		Name: "John Doe",
 	}
 
 	userResponse, err := restclient.
-		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
@@ -108,12 +107,12 @@ func TestGetBadRequest(t *testing.T) {
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
 
-	userRequest := service.UserRequest{
+	userRequest := UserRequest{
 		Name: "John Doe",
 	}
 
 	userResponse, err := restclient.
-		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
@@ -133,12 +132,12 @@ func TestGetToManyRequest(t *testing.T) {
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
 
-	userRequest := service.UserRequest{
+	userRequest := UserRequest{
 		Name: "John Doe",
 	}
 
 	userResponse, err := restclient.
-		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
@@ -158,12 +157,12 @@ func TestGetSecurityError(t *testing.T) {
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
 
-	userRequest := service.UserRequest{
+	userRequest := UserRequest{
 		Name: "John Doe",
 	}
 
 	userResponse, err := restclient.
-		Write[service.UserRequest, service.UserRequest]{RESTClient: &restClient}.
+		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
 		Post("api.internal.iskaypet.com/users", userRequest, nil) //nolint:nolintlint,typecheck
 
 	assert.Error(t, err)
@@ -256,8 +255,18 @@ func TestInvalidRequest(t *testing.T) {
 }
 
 type UserResponse struct {
-	ID   int64  `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID     int64  `json:"id,omitempty"`
+	Name   string `json:"name,omitempty"`
+	Email  string `json:"email,omitempty"`
+	Gender string `json:"gender,omitempty"`
+	Status string `json:"status,omitempty"`
+}
+
+type UserRequest struct {
+	Name   string `json:"name,omitempty"`
+	Email  string `json:"email,omitempty"`
+	Gender string `json:"gender,omitempty"`
+	Status string `json:"status,omitempty"`
 }
 
 func Ok() (*http.Response, error) {
