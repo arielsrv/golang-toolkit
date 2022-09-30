@@ -16,7 +16,6 @@ tasks:
   coverage:
     desc: Makes report coverage.
     cmds:
-      - mkdir -p $COVERAGE_FOLDER
       - go test $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]') -covermode=count -coverprofile=coverage.out
       - go tool cover -html coverage.out -o coverage.html
       - go tool cover -func=coverage.out -o=coverage.out
