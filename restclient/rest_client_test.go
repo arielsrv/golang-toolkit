@@ -94,6 +94,8 @@ func TestGetNotFound(t *testing.T) {
 	assert.Equal(t, "not found", err.Error())
 	var restClientError *restclient.APINotFoundError
 	assert.True(t, errors.As(err, &restClientError))
+	assert.Equal(t, http.StatusNotFound, restClientError.StatusCode)
+	assert.Equal(t, "not found", restClientError.Message)
 	assert.NotNil(t, userResponse)
 	assert.Equal(t, http.StatusNotFound, userResponse.Status)
 }
