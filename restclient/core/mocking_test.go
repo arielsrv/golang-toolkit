@@ -1,14 +1,14 @@
-package restclient_test
+package core_test
 
 import (
-	"github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/arielsrv/golang-toolkit/restclient/core"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 )
 
 func TestMockRequest_GetHashCode(t *testing.T) {
-	request := restclient.MockRequest{
+	request := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://www.google.com",
 	}
@@ -19,7 +19,7 @@ func TestMockRequest_GetHashCode(t *testing.T) {
 }
 
 func TestMockResponse_NewRESTClient(t *testing.T) {
-	mockResponse := restclient.MockResponse[[]UserResponse]{}.
+	mockResponse := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient()
 
 	assert.NotNil(t, mockResponse)
@@ -27,19 +27,19 @@ func TestMockResponse_NewRESTClient(t *testing.T) {
 }
 
 func TestMockResponse_AddMockRequest(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetUsersResponse(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetUsersResponse(), core.NoNetworkError()).
 		Build()
 
 	assert.NotNil(t, restClient)
 	assert.Nil(t, restClient.HTTPClient)
 	assert.NotNil(t, restClient.Mock)
-	actual := restClient.Mock.(map[uint64]restclient.Tuple[[]UserResponse]) //nolint:nolintlint,errcheck
+	actual := restClient.Mock.(map[uint64]core.Tuple[[]UserResponse]) //nolint:nolintlint,errcheck
 	assert.NotNil(t, actual)
 	assert.NotNil(t, actual[mockRequest.GetHashCode()])
 	assert.NotNil(t, actual[mockRequest.GetHashCode()].Response)
@@ -49,18 +49,17 @@ func TestMockResponse_AddMockRequest(t *testing.T) {
 }
 
 func TestExecute_GetMock(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetUsersResponse(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetUsersResponse(), core.NoNetworkError()).
 		Build()
 
-	var result restclient.APIResponse[[]UserResponse]
-	actual, err := restclient.
-		Read[[]UserResponse]{RESTClient: restClient}.
+	var result core.APIResponse[[]UserResponse]
+	actual, err := core.Read[[]UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.NoError(t, err)
@@ -72,18 +71,17 @@ func TestExecute_GetMock(t *testing.T) {
 }
 
 func TestExecute_GetMockErrorRead(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetError(), core.NoNetworkError()).
 		Build()
 
-	var result restclient.APIResponse[[]UserResponse]
-	actual, err := restclient.
-		Read[[]UserResponse]{RESTClient: restClient}.
+	var result core.APIResponse[[]UserResponse]
+	actual, err := core.Read[[]UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -91,18 +89,17 @@ func TestExecute_GetMockErrorRead(t *testing.T) {
 }
 
 func TestExecute_GetMockErrorWrite(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodPost,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetError(), core.NoNetworkError()).
 		Build()
 
-	var result restclient.APIResponse[[]UserResponse]
-	actual, err := restclient.
-		Write[UserResponse, []UserResponse]{RESTClient: restClient}.
+	var result core.APIResponse[[]UserResponse]
+	actual, err := core.Write[UserResponse, []UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodPost, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -110,18 +107,17 @@ func TestExecute_GetMockErrorWrite(t *testing.T) {
 }
 
 func TestExecute_GetMockConversionErrorRead(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetError(), core.NoNetworkError()).
 		Build()
 
-	var result restclient.APIResponse[UserResponse]
-	actual, err := restclient.
-		Read[UserResponse]{RESTClient: restClient}.
+	var result core.APIResponse[UserResponse]
+	actual, err := core.Read[UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -130,18 +126,17 @@ func TestExecute_GetMockConversionErrorRead(t *testing.T) {
 }
 
 func TestExecute_GetMockConversionWrite(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodPost,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetError(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetError(), core.NoNetworkError()).
 		Build()
 
-	var result restclient.APIResponse[[]UserResponse]
-	actual, err := restclient.
-		Write[UserResponse, []UserResponse]{RESTClient: restClient}.
+	var result core.APIResponse[[]UserResponse]
+	actual, err := core.Write[UserResponse, []UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodPost, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -150,18 +145,17 @@ func TestExecute_GetMockConversionWrite(t *testing.T) {
 }
 
 func TestExecute_GetMockNetworkError(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetError(), restclient.NetworkError()).
+		AddMockRequest(mockRequest, GetError(), core.NetworkError()).
 		Build()
 
-	var result restclient.APIResponse[[]UserResponse]
-	actual, err := restclient.
-		Read[[]UserResponse]{RESTClient: restClient}.
+	var result core.APIResponse[[]UserResponse]
+	actual, err := core.Read[[]UserResponse]{RESTClient: restClient}.
 		GetMock(http.MethodGet, "https://gorest.co.in/public/v2/users", &result)
 
 	assert.Error(t, err)
@@ -169,17 +163,16 @@ func TestExecute_GetMockNetworkError(t *testing.T) {
 }
 
 func TestExecute_Intercept_MethodGet(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[[]UserResponse]{}.
+	restClient := core.MockResponse[[]UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetUsersResponse(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetUsersResponse(), core.NoNetworkError()).
 		Build()
 
-	actual, err := restclient.
-		Read[[]UserResponse]{RESTClient: restClient}.
+	actual, err := core.Read[[]UserResponse]{RESTClient: restClient}.
 		Get("https://gorest.co.in/public/v2/users", nil)
 
 	assert.NoError(t, err)
@@ -190,19 +183,18 @@ func TestExecute_Intercept_MethodGet(t *testing.T) {
 }
 
 func TestExecute_Intercept_MethodPost(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodPost,
 		URL:    "https://gorest.co.in/public/v2/users",
 	}
-	restClient := restclient.MockResponse[UserResponse]{}.
+	restClient := core.MockResponse[UserResponse]{}.
 		NewRESTClient().
-		AddMockRequest(mockRequest, GetUserResponse(), restclient.NoNetworkError()).
+		AddMockRequest(mockRequest, GetUserResponse(), core.NoNetworkError()).
 		Build()
 
 	userResponse := UserResponse{Name: "John Doe"}
 
-	actual, err := restclient.
-		Write[UserResponse, UserResponse]{RESTClient: restClient}.
+	actual, err := core.Write[UserResponse, UserResponse]{RESTClient: restClient}.
 		Post("https://gorest.co.in/public/v2/users", userResponse, nil) //nolint:nolintlint,typecheck
 
 	assert.NoError(t, err)
@@ -211,18 +203,18 @@ func TestExecute_Intercept_MethodPost(t *testing.T) {
 	assert.Equal(t, "John Doe", actual.Data.Name)
 }
 
-func GetUserResponse() restclient.APIResponse[UserResponse] {
+func GetUserResponse() core.APIResponse[UserResponse] {
 	userResponse := UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
 	}
-	return restclient.APIResponse[UserResponse]{
+	return core.APIResponse[UserResponse]{
 		Data:   userResponse,
 		Status: http.StatusOK,
 	}
 }
 
-func GetUsersResponse() restclient.APIResponse[[]UserResponse] {
+func GetUsersResponse() core.APIResponse[[]UserResponse] {
 	userResponse := UserResponse{
 		ID:   int64(1),
 		Name: "John Doe",
@@ -230,14 +222,14 @@ func GetUsersResponse() restclient.APIResponse[[]UserResponse] {
 	var result []UserResponse
 	result = append(result, userResponse)
 
-	return restclient.APIResponse[[]UserResponse]{
+	return core.APIResponse[[]UserResponse]{
 		Data:   result,
 		Status: http.StatusOK,
 	}
 }
 
-func GetError() restclient.APIResponse[[]UserResponse] {
-	return restclient.APIResponse[[]UserResponse]{
+func GetError() core.APIResponse[[]UserResponse] {
+	return core.APIResponse[[]UserResponse]{
 		Data:   nil,
 		Status: http.StatusInternalServerError,
 	}

@@ -1,8 +1,8 @@
 package service_test
 
 import (
-	"github.com/arielsrv/golang-toolkit/examples/service"
-	"github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/arielsrv/golang-toolkit/restclient/core"
+	"github.com/arielsrv/golang-toolkit/restclient/examples/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -101,5 +101,5 @@ func Ok() ([]service.UserResponse, error) {
 }
 
 func Error() ([]service.UserResponse, error) {
-	return nil, &restclient.APIError{Message: "internal server error"}
+	return nil, &core.APIError{Message: "internal server error"}
 }

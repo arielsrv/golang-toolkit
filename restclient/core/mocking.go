@@ -1,8 +1,8 @@
-package restclient
+package core
 
 import (
 	"errors"
-	"github.com/arielsrv/golang-toolkit/restclient/hashcode"
+	"github.com/arielsrv/golang-toolkit/restclient/core/hashcode"
 )
 
 type MockError struct {

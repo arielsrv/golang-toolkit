@@ -1,8 +1,8 @@
 package hashcode_test
 
 import (
-	"github.com/arielsrv/golang-toolkit/restclient"
-	"github.com/arielsrv/golang-toolkit/restclient/hashcode"
+	"github.com/arielsrv/golang-toolkit/restclient/core"
+	"github.com/arielsrv/golang-toolkit/restclient/core/hashcode"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -14,7 +14,7 @@ func Test(t *testing.T) {
 }
 
 func TestObject(t *testing.T) {
-	mockRequest := restclient.MockRequest{
+	mockRequest := core.MockRequest{
 		Method: http.MethodGet,
 		URL:    "api.internal.com",
 	}

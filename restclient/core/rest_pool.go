@@ -1,4 +1,4 @@
-package restclient
+package core
 
 import (
 	"time"
