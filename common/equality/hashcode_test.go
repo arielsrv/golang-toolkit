@@ -1,15 +1,15 @@
-package hashcode_test
+package equality_test
 
 import (
+	"github.com/arielsrv/golang-toolkit/common/equality"
 	"github.com/arielsrv/golang-toolkit/restclient"
-	"github.com/arielsrv/golang-toolkit/restclient/hashcode"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 )
 
 func Test(t *testing.T) {
-	value := hashcode.GetValue("hello world!")
+	value := equality.GetValue("hello world!")
 	assert.Equal(t, uint64(0x58735284b97b86bc), value)
 }
 

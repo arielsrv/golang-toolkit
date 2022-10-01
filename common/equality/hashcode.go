@@ -1,4 +1,4 @@
-package hashcode
+package equality
 
 import (
 	"hash/fnv"

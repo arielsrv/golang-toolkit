@@ -2,7 +2,7 @@ package restclient
 
 import (
 	"errors"
-	"github.com/arielsrv/golang-toolkit/restclient/hashcode"
+	"github.com/arielsrv/golang-toolkit/common/equality"
 )
 
 type MockError struct {
@@ -43,8 +43,8 @@ type MockRequest struct {
 
 func (mockRequest MockRequest) GetHashCode() uint64 {
 	hash := uint64(7)
-	hash = uint64(31)*hash + hashcode.GetValue(mockRequest.Method)
-	hash = uint64(31)*hash + hashcode.GetValue(mockRequest.URL)
+	hash = uint64(31)*hash + equality.GetValue(mockRequest.Method)
+	hash = uint64(31)*hash + equality.GetValue(mockRequest.URL)
 	return hash
 }
 
