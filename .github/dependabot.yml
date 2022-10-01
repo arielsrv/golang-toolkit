@@ -8,6 +8,10 @@ updates:
     directory: /examples/restclient
     schedule:
       interval: daily
+  - package-ecosystem: gomod
+    directory: /common
+    schedule:
+      interval: daily
   - package-ecosystem: github-actions
     directory: /
     schedule:
