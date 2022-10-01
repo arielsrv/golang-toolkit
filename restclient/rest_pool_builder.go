@@ -99,7 +99,8 @@ func (restPoolBuilder *RESTPoolBuilder) MakeDefault() *RESTPoolBuilder {
 }
 
 func (restPoolBuilder *RESTPoolBuilder) Build() (*RESTPool, error) {
-	if common.IsEmpty(restPoolBuilder.Name) {
+	err := common.NotEmpty(restPoolBuilder.Name)
+	if err != nil {
 		return nil, errors.New("restPoolBuilder.Name cannot be empty. ")
 	}
 	return &RESTPool{

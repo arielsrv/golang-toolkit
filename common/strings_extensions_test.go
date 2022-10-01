@@ -17,3 +17,15 @@ func TestIsNotEmpty(t *testing.T) {
 	actual := common.IsEmpty(value)
 	assert.False(t, actual)
 }
+
+func TestGuardIsEmpty(t *testing.T) {
+	value := "hello world!"
+	err := common.NotEmpty(value)
+	assert.NoError(t, err)
+}
+
+func TestGuardIsNotEmpty(t *testing.T) {
+	value := ""
+	err := common.NotEmpty(value)
+	assert.Error(t, err)
+}
