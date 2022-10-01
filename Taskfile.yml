@@ -22,6 +22,7 @@ tasks:
   download:
     desc: Run go mod tidy.
     cmds:
+      - go work sync
       - for f in $(find . -name go.mod); do (cd $(dirname $f); go mod tidy) ; done
   upgrade:
     desc: Check for latest direct dependencies.
