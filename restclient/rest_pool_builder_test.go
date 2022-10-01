@@ -54,5 +54,5 @@ func Test_Missing_Name(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Nil(t, restPool)
-	assert.Equal(t, "builder.Name cannot be empty. ", err.Error())
+	assert.Equal(t, "restPoolBuilder.Name cannot be empty. ", err.Error())
 }

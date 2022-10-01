@@ -2,6 +2,7 @@ package restclient
 
 import (
 	"errors"
+	"github.com/arielsrv/golang-toolkit/common"
 	"time"
 )
 
@@ -39,77 +40,77 @@ func NewRESTPoolBuilder() *RESTPoolBuilder {
 	}
 }
 
-func (builder *RESTPoolBuilder) WithName(name string) *RESTPoolBuilder {
-	builder.Name = name
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithName(name string) *RESTPoolBuilder {
+	restPoolBuilder.Name = name
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithTimeout(timeout time.Duration) *RESTPoolBuilder {
-	builder.Timeout = timeout
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithTimeout(timeout time.Duration) *RESTPoolBuilder {
+	restPoolBuilder.Timeout = timeout
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithSocketTimeout(socketTimeout time.Duration) *RESTPoolBuilder {
-	builder.SocketTimeout = socketTimeout
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithSocketTimeout(socketTimeout time.Duration) *RESTPoolBuilder {
+	restPoolBuilder.SocketTimeout = socketTimeout
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithSocketKeepAlive(socketKeepAlive time.Duration) *RESTPoolBuilder {
-	builder.SocketKeepAlive = socketKeepAlive
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithSocketKeepAlive(socketKeepAlive time.Duration) *RESTPoolBuilder {
+	restPoolBuilder.SocketKeepAlive = socketKeepAlive
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithTLSHandshakeTimeout(tlsHandshakeTimeout time.Duration) *RESTPoolBuilder {
-	builder.TLSHandshakeTimeout = tlsHandshakeTimeout
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithTLSHandshakeTimeout(tlsHandshakeTimeout time.Duration) *RESTPoolBuilder {
+	restPoolBuilder.TLSHandshakeTimeout = tlsHandshakeTimeout
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithIdleConnectionTimeout(idleConnectionTimeout time.Duration) *RESTPoolBuilder {
-	builder.IdleConnectionTimeout = idleConnectionTimeout
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithIdleConnectionTimeout(idleConnectionTimeout time.Duration) *RESTPoolBuilder {
+	restPoolBuilder.IdleConnectionTimeout = idleConnectionTimeout
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithMaxIdleConnections(maxIdleConnections int) *RESTPoolBuilder {
-	builder.MaxIdleConnections = maxIdleConnections
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithMaxIdleConnections(maxIdleConnections int) *RESTPoolBuilder {
+	restPoolBuilder.MaxIdleConnections = maxIdleConnections
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithMaxConnectionsPerHost(maxConnectionsPerHost int) *RESTPoolBuilder {
-	builder.MaxConnectionsPerHost = maxConnectionsPerHost
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithMaxConnectionsPerHost(maxConnectionsPerHost int) *RESTPoolBuilder {
+	restPoolBuilder.MaxConnectionsPerHost = maxConnectionsPerHost
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) WithMaxIdleConnectionsPerHost(maxIdleConnectionsPerHost int) *RESTPoolBuilder {
-	builder.MaxIdleConnectionsPerHost = maxIdleConnectionsPerHost
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) WithMaxIdleConnectionsPerHost(maxIdleConnectionsPerHost int) *RESTPoolBuilder {
+	restPoolBuilder.MaxIdleConnectionsPerHost = maxIdleConnectionsPerHost
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) MakeDefault() *RESTPoolBuilder {
-	builder.Name = "__default__"
-	builder.MaxIdleConnections = MaxIdleConnections
-	builder.MaxConnectionsPerHost = MaxConnectionsPerHost
-	builder.MaxIdleConnectionsPerHost = MaxIdleConnectionsPerHost
-	builder.Timeout = Timeout
-	builder.IdleConnectionTimeout = IdleConnectionTimeout
-	builder.TLSHandshakeTimeout = TLSHandshakeTimeout
-	builder.SocketTimeout = SocketTimeout
-	builder.SocketKeepAlive = SocketKeepAlive
-	return builder
+func (restPoolBuilder *RESTPoolBuilder) MakeDefault() *RESTPoolBuilder {
+	restPoolBuilder.Name = "__default__"
+	restPoolBuilder.MaxIdleConnections = MaxIdleConnections
+	restPoolBuilder.MaxConnectionsPerHost = MaxConnectionsPerHost
+	restPoolBuilder.MaxIdleConnectionsPerHost = MaxIdleConnectionsPerHost
+	restPoolBuilder.Timeout = Timeout
+	restPoolBuilder.IdleConnectionTimeout = IdleConnectionTimeout
+	restPoolBuilder.TLSHandshakeTimeout = TLSHandshakeTimeout
+	restPoolBuilder.SocketTimeout = SocketTimeout
+	restPoolBuilder.SocketKeepAlive = SocketKeepAlive
+	return restPoolBuilder
 }
 
-func (builder *RESTPoolBuilder) Build() (*RESTPool, error) {
-	if builder.Name == "" {
-		return nil, errors.New("builder.Name cannot be empty. ")
+func (restPoolBuilder *RESTPoolBuilder) Build() (*RESTPool, error) {
+	if common.IsEmpty(restPoolBuilder.Name) {
+		return nil, errors.New("restPoolBuilder.Name cannot be empty. ")
 	}
 	return &RESTPool{
-		Name:                      builder.Name,
-		MaxIdleConnections:        builder.MaxIdleConnections,
-		MaxConnectionsPerHost:     builder.MaxConnectionsPerHost,
-		MaxIdleConnectionsPerHost: builder.MaxIdleConnectionsPerHost,
-		Timeout:                   builder.Timeout,
-		IdleConnectionTimeout:     builder.IdleConnectionTimeout,
-		TLSHandshakeTimeout:       builder.TLSHandshakeTimeout,
-		SocketTimeout:             builder.SocketTimeout,
-		SocketKeepAlive:           builder.SocketKeepAlive,
+		Name:                      restPoolBuilder.Name,
+		MaxIdleConnections:        restPoolBuilder.MaxIdleConnections,
+		MaxConnectionsPerHost:     restPoolBuilder.MaxConnectionsPerHost,
+		MaxIdleConnectionsPerHost: restPoolBuilder.MaxIdleConnectionsPerHost,
+		Timeout:                   restPoolBuilder.Timeout,
+		IdleConnectionTimeout:     restPoolBuilder.IdleConnectionTimeout,
+		TLSHandshakeTimeout:       restPoolBuilder.TLSHandshakeTimeout,
+		SocketTimeout:             restPoolBuilder.SocketTimeout,
+		SocketKeepAlive:           restPoolBuilder.SocketKeepAlive,
 	}, nil
 }
