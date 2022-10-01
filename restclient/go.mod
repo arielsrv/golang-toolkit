@@ -3,7 +3,7 @@ module github.com/arielsrv/golang-toolkit/restclient
 go 1.19
 
 require (
-	github.com/arielsrv/golang-toolkit/common v0.0.0-00010101000000-000000000000
+	github.com/arielsrv/golang-toolkit/common v0.0.1
 	github.com/stretchr/testify v1.8.0
 )
 
