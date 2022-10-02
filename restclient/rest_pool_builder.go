@@ -2,7 +2,7 @@ package restclient
 
 import (
 	"errors"
-	"github.com/arielsrv/golang-toolkit/common/strings"
+	stringsextensions "github.com/arielsrv/golang-toolkit/common/strings"
 	"time"
 )
 
@@ -99,7 +99,7 @@ func (restPoolBuilder *RESTPoolBuilder) MakeDefault() *RESTPoolBuilder {
 }
 
 func (restPoolBuilder *RESTPoolBuilder) Build() (*RESTPool, error) {
-	err := strings.NotEmpty(restPoolBuilder.Name)
+	err := stringsextensions.NotEmpty(restPoolBuilder.Name)
 	if err != nil {
 		return nil, errors.New("restPoolBuilder.Name cannot be empty. ")
 	}

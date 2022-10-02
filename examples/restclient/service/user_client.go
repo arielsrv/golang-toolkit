@@ -41,8 +41,7 @@ func (userClient UserClient) GetUsers() ([]UserResponse, error) {
 
 func (userClient UserClient) GetUser(userID int64) (*UserResponse, error) {
 	apiURL := fmt.Sprintf("%s/users/%d", userClient.baseURL, userID)
-	response, err := restclient.
-		Read[UserResponse]{RESTClient: &userClient.restClient}.
+	response, err := restclient.Read[UserResponse]{RESTClient: &userClient.restClient}.
 		Get(apiURL, nil)
 
 	if err != nil {
@@ -53,12 +52,14 @@ func (userClient UserClient) GetUser(userID int64) (*UserResponse, error) {
 }
 
 func (userClient UserClient) CreateUser(userRequest UserRequest) (int64, error) {
-	headers := restclient.Headers{}
-	headers.Put(httpheader.Authorization, fmt.Sprintf("Bearer %s", os.Getenv("GOREST_TOKEN")))
+	headers := restclient.NewHeaders()
+	accessToken := os.Getenv("GOREST_TOKEN")
+	headerValue := fmt.Sprintf("Bearer %s", accessToken)
+	headers.Put(httpheader.Authorization, headerValue)
 	headers.Put(httpheader.ContentType, mimetype.ApplicationJSON)
 	apiURL := fmt.Sprintf("%s/users", userClient.baseURL)
-	response, err := restclient.
-		Write[UserRequest, UserResponse]{RESTClient: &userClient.restClient}.
+
+	response, err := restclient.Write[UserRequest, UserResponse]{RESTClient: &userClient.restClient}.
 		Post(apiURL, userRequest, headers)
 
 	if err != nil {

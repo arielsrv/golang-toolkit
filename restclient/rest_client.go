@@ -40,17 +40,23 @@ type Write[TInput any, TOutput any] struct {
 type APIResponse[TOutput any] struct {
 	Data    TOutput
 	Status  int
-	Headers Headers
+	Headers *Headers
 }
 
-type Headers map[string]string
+type Headers struct {
+	collection map[string]string
+}
+
+func NewHeaders() *Headers {
+	return &Headers{collection: make(map[string]string)}
+}
 
 func (headers Headers) Get(key string) string {
-	return headers[key]
+	return headers.collection[key]
 }
 
 func (headers Headers) Put(key string, value string) {
-	headers[key] = value
+	headers.collection[key] = value
 }
 
 func NewRESTClient(restPool RESTPool) *RESTClient {
@@ -74,7 +80,7 @@ func NewRESTClient(restPool RESTPool) *RESTClient {
 	}
 }
 
-func (e Read[TOutput]) Get(url string, headers Headers) (*APIResponse[TOutput], error) {
+func (e Read[TOutput]) Get(url string, headers *Headers) (*APIResponse[TOutput], error) {
 	var result *APIResponse[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodGet, url, result)
@@ -87,7 +93,7 @@ func (e Read[TOutput]) Get(url string, headers Headers) (*APIResponse[TOutput], 
 	return result, nil
 }
 
-func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers) (*APIResponse[TOutput], error) {
+func (e Write[TInput, TOutput]) Post(url string, request TInput, headers *Headers) (*APIResponse[TOutput], error) {
 	var result *APIResponse[TOutput]
 	if e.RESTClient.testingMode {
 		return e.GetMock(http.MethodPost, url, result)
@@ -105,14 +111,16 @@ func (e Write[TInput, TOutput]) Post(url string, request TInput, headers Headers
 	return result, nil
 }
 
-func execute[TOutput any](client IClient, method string, url string, data io.Reader, headers Headers) (*APIResponse[TOutput], error) {
+func execute[TOutput any](client IClient, method string, url string, data io.Reader, headers *Headers) (*APIResponse[TOutput], error) {
 	request, err := http.NewRequestWithContext(context.Background(), method, url, data)
 	if err != nil {
 		return nil, err
 	}
 
-	for key, value := range headers {
-		request.Header.Set(key, value)
+	if headers != nil {
+		for key, value := range headers.collection {
+			request.Header.Set(key, value)
+		}
 	}
 
 	response, err := client.Do(request)
@@ -130,7 +138,7 @@ func execute[TOutput any](client IClient, method string, url string, data io.Rea
 
 	var apiResponse APIResponse[TOutput]
 	apiResponse.Status = response.StatusCode
-	apiResponse.Headers = make(map[string]string)
+	apiResponse.Headers = NewHeaders()
 	for key, values := range response.Header {
 		value := strings.Join(values, ",")
 		apiResponse.Headers.Put(key, value)

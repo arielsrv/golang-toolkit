@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	stringsextensions "github.com/arielsrv/golang-toolkit/common/strings"
 	"github.com/arielsrv/golang-toolkit/examples/restclient/service"
 	"github.com/arielsrv/golang-toolkit/restclient"
-	"github.com/tjarratt/babble"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -15,6 +14,7 @@ func main() {
 		NewRESTPoolBuilder().
 		WithName("users").
 		WithTimeout(time.Millisecond * 1000).
+		WithSocketTimeout(time.Millisecond * 5000).
 		WithMaxConnectionsPerHost(20).
 		WithMaxIdleConnectionsPerHost(20).
 		Build()
@@ -27,9 +27,7 @@ func main() {
 	userClient := service.NewUserClient(*restClient)
 	userService := service.NewUserService(userClient)
 
-	babbler := babble.NewBabbler()
-	babbler.Separator = "_"
-	name := strings.ToLower(babbler.Babble())
+	name := stringsextensions.RandomString()
 	email := fmt.Sprintf("%s@github.com", name)
 
 	log.Println("Creating user ...")
@@ -44,7 +42,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("User: ID: %d, Name: %s, Email: %s",
+	log.Printf("\tUser: ID: %d, Name: %s, Email: %s",
 		userDto.ID,
 		userDto.FullName,
 		userDto.Email)
@@ -53,6 +51,13 @@ func main() {
 	usersDto, err := userService.GetUsers()
 	if err != nil {
 		log.Fatalf("Error Users %s", err)
+	}
+
+	for _, userDto = range usersDto {
+		log.Printf("\tUser: ID: %d, Name: %s, Email: %s",
+			userDto.ID,
+			userDto.FullName,
+			userDto.Email)
 	}
 
 	if len(usersDto) == 0 {
@@ -66,7 +71,7 @@ func main() {
 		log.Fatalf("Error User %d, %s", userID, err)
 	}
 
-	log.Printf("User: ID: %d, Name: %s, Email: %s",
+	log.Printf("\tUser: ID: %d, Name: %s, Email: %s",
 		search.ID,
 		search.FullName,
 		search.Email)

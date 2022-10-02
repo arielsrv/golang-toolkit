@@ -30,9 +30,12 @@ func TestGetOk(t *testing.T) {
 	restClient := restclient.
 		RESTClient{HTTPClient: httpClient}
 
+	headers := restclient.NewHeaders()
+	headers.Put("x-auth-token", "my_token")
+
 	userResponse, err := restclient.
 		Read[UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.iskaypet.com/users", nil)
+		Get("api.internal.iskaypet.com/users", headers)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userResponse)
