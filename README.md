@@ -3,8 +3,26 @@
 ![Coverage](https://img.shields.io/badge/Coverage-96.0%25-brightgreen)
 [![Update release version.](https://github.com/tj-actions/coverage-badge-go/workflows/Update%20release%20version./badge.svg)](https://github.com/tj-actions/coverage-badge-go/actions?query=workflow%3A%22Update+release+version.%22)
 
-# Generic REST Client with connection pool
-## ⚡️ Quickstart
+## Developer tools
+- [Golang Lint](https://golangci-lint.run/)
+- [Golang Task](https://taskfile.dev/)
+- [Golang Dependencies Update](https://github.com/oligot/go-mod-upgrade)
+- [jq](https://stedolan.github.io/jq/)
+
+### For macOs
+```shell
+$ brew install go-task/tap/go-task
+$ brew install golangci-lint
+$ go install github.com/oligot/go-mod-upgrade@latest
+$ brew install jq
+```
+
+## Table of contents
+* [RESTClient](#rest-client)
+* [KeyValueStore](#key-value-store)
+
+## Rest Client
+# ⚡️ Quickstart
 
 ```go
 package main
@@ -81,3 +99,6 @@ func main() {
 	log.Printf("User: ID: %d, Name: %s", result.Data.ID, result.Data.Name)
 }
 ```
+
+## Key Value Store
+# TODO
