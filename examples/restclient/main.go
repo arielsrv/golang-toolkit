@@ -42,10 +42,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("\tUser: ID: %d, Name: %s, Email: %s",
-		userDto.ID,
-		userDto.FullName,
-		userDto.Email)
+	PrintUserDto(userDto)
 
 	log.Println("Get all users ...")
 	usersDto, err := userService.GetUsers()
@@ -54,10 +51,7 @@ func main() {
 	}
 
 	for _, userDto = range usersDto {
-		log.Printf("\tUser: ID: %d, Name: %s, Email: %s",
-			userDto.ID,
-			userDto.FullName,
-			userDto.Email)
+		PrintUserDto(userDto)
 	}
 
 	if len(usersDto) == 0 {
@@ -71,8 +65,12 @@ func main() {
 		log.Fatalf("Error User %d, %s", userID, err)
 	}
 
+	PrintUserDto(*search)
+}
+
+func PrintUserDto(userDto service.UserDto) {
 	log.Printf("\tUser: ID: %d, Name: %s, Email: %s",
-		search.ID,
-		search.FullName,
-		search.Email)
+		userDto.ID,
+		userDto.FullName,
+		userDto.Email)
 }
