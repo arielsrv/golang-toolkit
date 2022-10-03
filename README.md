@@ -22,6 +22,10 @@ $ brew install jq
 * [KeyValueStore](#key-value-store)
 
 ## Rest Client
+
+# Installation
+go get -u github.com/arielsrv/golang-tookit/restclient
+
 # ⚡️ Quickstart
 
 ```go

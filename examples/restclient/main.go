@@ -13,7 +13,7 @@ func main() {
 	restPool, err := restclient.
 		NewRESTPoolBuilder().
 		WithName("users").
-		WithTimeout(time.Millisecond * 1000).
+		WithTimeout(time.Millisecond * 5000).
 		WithSocketTimeout(time.Millisecond * 5000).
 		WithMaxConnectionsPerHost(20).
 		WithMaxIdleConnectionsPerHost(20).
