@@ -25,7 +25,7 @@ $ brew install jq
 
 # Installation
 ```sh
-go get -u github.com/arielsrv/golang-tookit/restclient
+go get -u github.com/arielsrv/golang-toolkit/restclient
 ```
 
 # ⚡️ Quickstart
