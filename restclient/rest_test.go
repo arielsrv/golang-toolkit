@@ -2,6 +2,7 @@ package restclient_test
 
 import (
 	rest "github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"strings"
 	"testing"
@@ -195,11 +196,10 @@ func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
 	restClient.FollowRedirect = true
 
 	response := restClient.Get(server.URL + "/user")
-	expected := "proxyconnect tcp: dial tcp: lookup saraza: no such host"
+	// expected := "proxyconnect tcp: dial tcp: lookup saraza: no such host"
 
-	if !strings.Contains(response.Err.Error(), expected) {
-		t.Fatalf("Expected %v Error, Got %v as Response", expected, response.Err.Error())
-	}
+	assert.Error(t, response.Err)
+	assert.NotEmpty(t, response.Err.Error())
 }
 
 func TestRequestSendingClientMetrics(t *testing.T) {

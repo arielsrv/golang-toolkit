@@ -23,6 +23,13 @@ func main() {
 		BaseURL:        "https://gorest.co.in/public/v2",
 	}
 
+	// This won't be blocked.
+	requestBuilder.AsyncGet("/users", func(response *rest.Response) {
+		if response.StatusCode == http.StatusOK {
+			log.Println(response)
+		}
+	})
+
 	response := requestBuilder.Get("/users")
 	if response.StatusCode != http.StatusOK {
 		log.Fatal(response.Err.Error())
