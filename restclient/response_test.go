@@ -40,7 +40,7 @@ func TestGetFillUpJSON(t *testing.T) {
 		t.Fatal("Status != OK (200)")
 	}
 
-	err := resp.FillUp(&u)
+	err := resp.Unmarshal(&u)
 	if err != nil {
 		t.Fatal("Json fill up failed. Error: " + err.Error())
 	}
@@ -68,7 +68,7 @@ func TestGetFillUpXML(t *testing.T) {
 		t.Fatal("Status != OK (200)")
 	}
 
-	err := resp.FillUp(&u)
+	err := resp.Unmarshal(&u)
 	if err != nil {
 		t.Fatal("Json fill up failed. Error: " + err.Error())
 	}

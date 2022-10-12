@@ -77,11 +77,7 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 		}
 
 		// Read response
-		defer func(Body io.ReadCloser) {
-			err := Body.Close()
-			if err != nil {
-			}
-		}(httpResp.Body)
+		defer httpResp.Body.Close()
 		respBody, err := io.ReadAll(httpResp.Body)
 		if err != nil {
 			result.Err = err

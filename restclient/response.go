@@ -53,9 +53,9 @@ func (r *Response) Bytes() []byte {
 	return r.byteBody
 }
 
-// FillUp set the *fill* parameter with the corresponding JSON or XML response.
+// Unmarshal set the *fill* parameter with the corresponding JSON or XML response.
 // fill could be `struct` or `map[string]interface{}`
-func (r *Response) FillUp(fill interface{}) error {
+func (r *Response) Unmarshal(fill interface{}) error {
 	ctypeJSON := "application/json"
 	ctypeXML := "application/xml"
 
