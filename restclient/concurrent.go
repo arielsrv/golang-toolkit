@@ -36,7 +36,7 @@ func (fr *FutureResponse) Response() *Response {
 //	})
 //
 // The difference is that Concurrent methods returns a FutureResponse, instead
-// of a Resonse
+// of a Response
 type Concurrent struct {
 	list       list.List
 	wg         sync.WaitGroup

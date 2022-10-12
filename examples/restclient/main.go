@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/arielsrv/golang-toolkit/restclient"
+	rest "github.com/arielsrv/golang-toolkit/restclient"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,7 +17,7 @@ type UserDto struct {
 }
 
 func main() {
-	requestBuilder := restclient.RequestBuilder{
+	requestBuilder := rest.RequestBuilder{
 		Timeout:        time.Millisecond * 3000,
 		ConnectTimeout: time.Millisecond * 5000,
 		BaseURL:        "https://gorest.co.in/public/v2",
@@ -31,11 +31,11 @@ func main() {
 	var usersDto []UserDto
 	response.Unmarshal(&usersDto)
 
-	var futures []*restclient.FutureResponse
+	var futures []*rest.FutureResponse
 
-	restclient.ForkJoin(func(c *restclient.Concurrent) {
+	requestBuilder.ForkJoin(func(c *rest.Concurrent) {
 		for i := 0; i < len(usersDto); i++ {
-			futures = append(futures, c.Get("https://gorest.co.in/public/v2/users/"+strconv.Itoa(usersDto[i].ID)))
+			futures = append(futures, c.Get("/users/"+strconv.Itoa(usersDto[i].ID)))
 		}
 	})
 

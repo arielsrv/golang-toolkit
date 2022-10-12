@@ -248,16 +248,16 @@ func doAsyncRequest(r *Response, f func(*Response)) {
 //	fmt.Println(futureA.Response())
 //	fmt.Println(futureB.Response())
 func (rb *RequestBuilder) ForkJoin(f func(*Concurrent)) {
-	c := new(Concurrent)
-	c.reqBuilder = rb
+	concurrent := new(Concurrent)
+	concurrent.reqBuilder = rb
 
-	f(c)
+	f(concurrent)
 
-	c.wg.Add(c.list.Len())
+	concurrent.wg.Add(concurrent.list.Len())
 
-	for e := c.list.Front(); e != nil; e = e.Next() {
+	for e := concurrent.list.Front(); e != nil; e = e.Next() {
 		go e.Value.(func())()
 	}
 
-	c.wg.Wait()
+	concurrent.wg.Wait()
 }

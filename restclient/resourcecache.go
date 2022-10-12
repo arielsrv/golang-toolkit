@@ -140,7 +140,7 @@ func (rCache *resourceTTLLruMap) setNX(key string, value *Response) { // Full Lo
 			resp:      value,
 		}
 
-		// Set ttl if necesary
+		// Set ttl if necessary
 		if value.ttl != nil {
 			value.skipListElement = rCache.skipList.insert(key, *value.ttl)
 			rCache.ttlChan <- true
@@ -193,7 +193,7 @@ func (rCache *resourceTTLLruMap) ttl() { // Function to send a message when the 
 
 		now := time.Now()
 
-		// Traverse the skiplist which is ordered by ttl.
+		// Traverse the skipList which is ordered by ttl.
 		// We do this by looping at level 0
 		for node := rCache.skipList.head.next[0]; node != nil; node = node.next[0] {
 			timeLeft := node.ttl.Sub(now)

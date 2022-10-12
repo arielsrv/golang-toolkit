@@ -11,7 +11,6 @@ import (
 func BenchmarkGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		resp := Rb.Get("/user")
-
 		if resp.StatusCode != http.StatusOK {
 			log.Print("f[" + strconv.Itoa(i) + "] Status != OK (200)")
 		}
