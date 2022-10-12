@@ -1,76 +1,60 @@
 package main
 
 import (
-	"fmt"
-	stringsextensions "github.com/arielsrv/golang-toolkit/common/strings"
-	"github.com/arielsrv/golang-toolkit/examples/restclient/service"
-	"github.com/arielsrv/golang-toolkit/restclient"
+	rest "github.com/arielsrv/golang-toolkit/restclient"
 	"log"
+	"net/http"
+	"strconv"
 	"time"
 )
 
-func main() {
-	restPool, err := restclient.
-		NewRESTPoolBuilder().
-		WithName("users").
-		WithTimeout(time.Millisecond * 5000).
-		WithSocketTimeout(time.Millisecond * 5000).
-		WithMaxConnectionsPerHost(20).
-		WithMaxIdleConnectionsPerHost(20).
-		Build()
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	restClient := restclient.NewRESTClient(*restPool)
-	userClient := service.NewUserClient(*restClient)
-	userService := service.NewUserService(userClient)
-
-	name := stringsextensions.RandomString()
-	email := fmt.Sprintf("%s@github.com", name)
-
-	log.Println("Creating user ...")
-	userDto, err := userService.CreateUser(service.UserDto{
-		FullName: name,
-		Email:    email,
-		Gender:   "male",
-		Status:   "active",
-	})
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	PrintUserDto(userDto)
-
-	log.Println("Get all users ...")
-	usersDto, err := userService.GetUsers()
-	if err != nil {
-		log.Fatalf("Error Users %s", err)
-	}
-
-	for _, userDto = range usersDto {
-		PrintUserDto(userDto)
-	}
-
-	if len(usersDto) == 0 {
-		log.Fatalf("Empty Users")
-	}
-
-	userID := usersDto[0].ID
-	log.Printf("Get user by id %d ...", userID)
-	search, err := userService.GetUser(userID)
-	if err != nil {
-		log.Fatalf("Error User %d, %s", userID, err)
-	}
-
-	PrintUserDto(*search)
+type UserDto struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Gender string `json:"gender"`
+	Status string `json:"status"`
 }
 
-func PrintUserDto(userDto service.UserDto) {
-	log.Printf("\tUser: ID: %d, Name: %s, Email: %s",
-		userDto.ID,
-		userDto.FullName,
-		userDto.Email)
+func main() {
+	requestBuilder := rest.RequestBuilder{
+		Timeout:        time.Millisecond * 3000,
+		ConnectTimeout: time.Millisecond * 5000,
+		BaseURL:        "https://gorest.co.in/public/v2",
+	}
+
+	// This won't be blocked.
+	requestBuilder.AsyncGet("/users", func(response *rest.Response) {
+		if response.StatusCode == http.StatusOK {
+			log.Println(response)
+		}
+	})
+
+	response := requestBuilder.Get("/users")
+	if response.StatusCode != http.StatusOK {
+		log.Fatal(response.Err.Error())
+	}
+
+	var usersDto []UserDto
+	response.Unmarshal(&usersDto)
+
+	var futures []*rest.FutureResponse
+
+	requestBuilder.ForkJoin(func(c *rest.Concurrent) {
+		for i := 0; i < len(usersDto); i++ {
+			futures = append(futures, c.Get("/users/"+strconv.Itoa(usersDto[i].ID)))
+		}
+	})
+
+	log.Println("Wait all ...")
+	startTime := time.Now()
+	for i := range futures {
+		if futures[i].Response().StatusCode == http.StatusOK {
+			var userDto UserDto
+			futures[i].Response().Unmarshal(&userDto)
+			log.Println("\t" + userDto.Name)
+		}
+	}
+	elapsedTime := time.Since(startTime)
+	log.Printf("Elapsed time: %d", elapsedTime)
 }

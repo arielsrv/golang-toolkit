@@ -42,7 +42,7 @@ linters-settings:
   gocognit:
     # Minimal code complexity to report
     # Default: 30 (but we recommend 10-20)
-    min-complexity: 20
+    min-complexity: 50
 
   gocritic:
     # Settings passed to gocritic.
@@ -145,7 +145,7 @@ linters:
   disable-all: true
   enable:
     ## enabled by default
-    - errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
+    #- errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
     - gosimple # specializes in simplifying a code
     - govet # reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
     - ineffassign # detects when assignments to existing variables are not used
@@ -168,7 +168,7 @@ linters:
     - exportloopref # checks for pointers to enclosing loop variables
     - forbidigo # forbids identifiers
     - funlen # tool for detection of long functions
-    - gochecknoglobals # checks that no global variables exist
+    #- gochecknoglobals # checks that no global variables exist
     - gochecknoinits # checks that no init functions are present in Go code
     - gocognit # computes and checks the cognitive complexity of functions
     - goconst # finds repeated strings that could be replaced by a constant
