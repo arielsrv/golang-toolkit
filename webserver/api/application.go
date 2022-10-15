@@ -17,7 +17,7 @@ type Application struct {
 	UseLogger    bool
 	UseSwagger   bool
 	routes       list.List
-	fiberApp     App
+	FiberApp     App // for fine-tuning
 }
 
 func (a *Application) Register(verb string, path string, action func(context *Context) error) *Application {
@@ -35,29 +35,29 @@ func (a *Application) Start(addr string) error {
 }
 
 func (a *Application) Build() *App {
-	a.fiberApp.App = fiber.New(fiber.Config{
+	a.FiberApp.App = fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 		ErrorHandler:          ErrorHandler,
 	})
 
 	if a.UseRecovery {
-		a.fiberApp.App.Use(recover.New(recover.Config{
+		a.FiberApp.App.Use(recover.New(recover.Config{
 			EnableStackTrace: true,
 		}))
 	}
 
 	if a.UseRequestID {
-		a.fiberApp.App.Use(requestid.New())
+		a.FiberApp.App.Use(requestid.New())
 	}
 
 	if a.UseLogger {
-		a.fiberApp.App.Use(logger.New(logger.Config{
+		a.FiberApp.App.Use(logger.New(logger.Config{
 			Format: "${pid} ${locals:requestid} ${status} - ${method} ${path}\n",
 		}))
 	}
 
 	if a.UseSwagger {
-		a.fiberApp.App.Add(http.MethodGet, "/swagger/*", swagger.HandlerDefault)
+		a.FiberApp.App.Add(http.MethodGet, "/swagger/*", swagger.HandlerDefault)
 	}
 
 	for node := a.routes.Front(); node != nil; node = node.Next() {
@@ -65,13 +65,13 @@ func (a *Application) Build() *App {
 		if !converted {
 			log.Fatalf("Cannot parse route.")
 		}
-		a.fiberApp.App.Add(route.Verb, route.Path, func(ctx *fiber.Ctx) error {
+		a.FiberApp.App.Add(route.Verb, route.Path, func(ctx *fiber.Ctx) error {
 			return route.Action(&Context{Ctx: ctx})
 		})
 	}
 
 	return &App{
-		App: a.fiberApp.App,
+		App: a.FiberApp.App,
 	}
 }
 
