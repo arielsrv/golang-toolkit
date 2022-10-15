@@ -118,5 +118,5 @@ func Ok() ([]service.UserResponse, error) {
 }
 
 func Error() ([]service.UserResponse, error) {
-	return nil, &restclient.APIError{Message: "internal server error"}
+	return nil, &restclient.APIError{Message: "api server error"}
 }

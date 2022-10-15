@@ -35,7 +35,7 @@ func TestGetOk(t *testing.T) {
 
 	userResponse, err := restclient.
 		Read[UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.iskaypet.com/users", headers)
+		Get("api.api.iskaypet.com/users", headers)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userResponse)
@@ -63,7 +63,7 @@ func TestPostOk(t *testing.T) {
 
 	userResponse, err := restclient.
 		Write[UserRequest, UserResponse]{RESTClient: &restClient}.
-		Post("api.internal.iskaypet.com/users", userRequest, nil)
+		Post("api.api.iskaypet.com/users", userRequest, nil)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userResponse)
@@ -91,7 +91,7 @@ func TestGetNotFound(t *testing.T) {
 
 	userResponse, err := restclient.
 		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
-		Post("api.internal.iskaypet.com/users", userRequest, nil)
+		Post("api.api.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "not found", err.Error())
@@ -118,7 +118,7 @@ func TestGetBadRequest(t *testing.T) {
 
 	userResponse, err := restclient.
 		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
-		Post("api.internal.iskaypet.com/users", userRequest, nil)
+		Post("api.api.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "bad request", err.Error())
@@ -143,7 +143,7 @@ func TestGetToManyRequest(t *testing.T) {
 
 	userResponse, err := restclient.
 		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
-		Post("api.internal.iskaypet.com/users", userRequest, nil)
+		Post("api.api.iskaypet.com/users", userRequest, nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "too many request", err.Error())
@@ -168,7 +168,7 @@ func TestGetSecurityError(t *testing.T) {
 
 	userResponse, err := restclient.
 		Write[UserRequest, UserRequest]{RESTClient: &restClient}.
-		Post("api.internal.iskaypet.com/users", userRequest, nil) //nolint:nolintlint,typecheck
+		Post("api.api.iskaypet.com/users", userRequest, nil) //nolint:nolintlint,typecheck
 
 	assert.Error(t, err)
 	assert.Equal(t, "unauthorized", err.Error())
@@ -189,7 +189,7 @@ func TestPostNotFound(t *testing.T) {
 
 	userResponse, err := restclient.
 		Read[UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.iskaypet.com/users", nil)
+		Get("api.api.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "not found", err.Error())
@@ -219,7 +219,7 @@ func TestParsingError(t *testing.T) {
 
 	_, err := restclient.
 		Read[[]UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.iskaypet.com/users", nil)
+		Get("api.api.iskaypet.com/users", nil)
 
 	assert.Error(t, err)
 }
@@ -252,7 +252,7 @@ func TestInvalidRequest(t *testing.T) {
 
 	response, err := restclient.
 		Read[UserResponse]{RESTClient: &restClient}.
-		Get("api.internal.com", nil)
+		Get("api.api.com", nil)
 
 	assert.Error(t, err)
 	assert.Equal(t, "invalid request", err.Error())

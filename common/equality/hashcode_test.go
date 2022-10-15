@@ -16,7 +16,7 @@ func TestObject(t *testing.T) {
 	mockRequest := GetObject()
 
 	actual := mockRequest.GetHashCode()
-	assert.Equal(t, uint64(0xda74b5e9b505f619), actual)
+	assert.Equal(t, uint64(0xd3593353142e4420), actual)
 }
 
 type MockRequest struct {
@@ -34,6 +34,6 @@ func (m MockRequest) GetHashCode() uint64 {
 func GetObject() *MockRequest {
 	return &MockRequest{
 		Method: http.MethodGet,
-		URL:    "api.internal.com",
+		URL:    "api.api.com",
 	}
 }
