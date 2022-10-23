@@ -1,11 +1,12 @@
-package restclient_test
+package rest_test
 
 import (
-	rest "github.com/arielsrv/golang-toolkit/restclient"
 	"net/http"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/arielsrv/golang-toolkit/rest"
 )
 
 func TestCacheGetLowCacheMaxSize(t *testing.T) {
@@ -17,7 +18,7 @@ func TestCacheGetLowCacheMaxSize(t *testing.T) {
 	var f [1000]*rest.Response
 
 	for i := range f {
-		f[i] = Rb.Get("/cache/user")
+		f[i] = rb.Get("/cache/user")
 
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
@@ -29,7 +30,7 @@ func TestCacheGet(t *testing.T) {
 	var f [1000]*rest.Response
 
 	for i := range f {
-		f[i] = Rb.Get("/cache/user")
+		f[i] = rb.Get("/cache/user")
 
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
@@ -41,7 +42,7 @@ func TestCacheGetEtag(t *testing.T) {
 	var f [100]*rest.Response
 
 	for i := range f {
-		f[i] = Rb.Get("/cache/etag/user")
+		f[i] = rb.Get("/cache/etag/user")
 
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
@@ -53,7 +54,7 @@ func TestCacheGetLastModified(t *testing.T) {
 	var f [100]*rest.Response
 
 	for i := range f {
-		f[i] = Rb.Get("/cache/lastmodified/user")
+		f[i] = rb.Get("/cache/lastmodified/user")
 
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
@@ -65,7 +66,7 @@ func TestCacheGetExpires(t *testing.T) {
 	var f [100]*rest.Response
 
 	for i := range f {
-		f[i] = Rb.Get("/cache/expires/user")
+		f[i] = rb.Get("/cache/expires/user")
 
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
@@ -77,7 +78,7 @@ func TestCacheForkJoinGet(t *testing.T) {
 	var f [100]*rest.FutureResponse
 
 	for x := 0; x < 1000; x++ {
-		Rb.ForkJoin(func(cr *rest.Concurrent) {
+		rb.ForkJoin(func(cr *rest.Concurrent) {
 			for i := range f {
 				f[i] = cr.Get("/cache/user")
 			}
@@ -95,7 +96,7 @@ func TestCacheSlowGet(t *testing.T) {
 	var f [1000]*rest.Response
 
 	for i := range f {
-		f[i] = Rb.Get("/cache/user")
+		f[i] = rb.Get("/cache/user")
 
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
@@ -110,7 +111,7 @@ func TestCacheSlowForkJoinGet(t *testing.T) {
 	var f [100]*rest.FutureResponse
 
 	for x := 0; x < 10; x++ {
-		Rb.ForkJoin(func(cr *rest.Concurrent) {
+		rb.ForkJoin(func(cr *rest.Concurrent) {
 			for i := range f {
 				f[i] = cr.Get("/slow/cache/user")
 			}

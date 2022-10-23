@@ -1,7 +1,7 @@
 package main
 
 import (
-	rest "github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/arielsrv/golang-toolkit/rest"
 	"log"
 	"net/http"
 	"strconv"
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	var usersDto []UserDto
-	response.Unmarshal(&usersDto)
+	response.FillUp(&usersDto)
 
 	var futures []*rest.FutureResponse
 
@@ -51,7 +51,7 @@ func main() {
 	for i := range futures {
 		if futures[i].Response().StatusCode == http.StatusOK {
 			var userDto UserDto
-			futures[i].Response().Unmarshal(&userDto)
+			futures[i].Response().FillUp(&userDto)
 			log.Println("\t" + userDto.Name)
 		}
 	}

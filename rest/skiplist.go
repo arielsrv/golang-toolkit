@@ -1,4 +1,4 @@
-package restclient
+package rest
 
 import (
 	"math/rand"
@@ -11,16 +11,16 @@ import (
 // However, it is much simpler to implement than a B-Tree
 // To learn more about Skip lists see: http://epaperpress.com/sortsearch/download/skiplist.pdf
 
-// 32 levels, counting from 0
+// 32 levels, counting from 0.
 const maxHeight = 31
 
-// The skiplist struct itself
+// The skiplist struct itself.
 type skipList struct {
 	height int
 	head   *skipListNode
 }
 
-// A node representation
+// A node representation.
 type skipListNode struct {
 	ttl  time.Time       // we will use this for comparing nodes, and setting order
 	key  string          // important to remove elements from other structures in the cache (lru and map)
@@ -38,7 +38,7 @@ func newSkipList() *skipList {
 	}
 }
 
-// Insert a node to the Skip list
+// Insert a node to the Skip list.
 func (s *skipList) insert(key string, ttl time.Time) *skipListNode {
 	level := 0
 
@@ -47,7 +47,7 @@ func (s *skipList) insert(key string, ttl time.Time) *skipListNode {
 
 	// Like flipping a coin up to the maximum height
 	// Level will have a value between 0 and 31
-	for level < maxHeight && rand.Intn(2) == 1 { //nolint:nolintlint,gosec
+	for level < maxHeight && rand.Intn(2) == 1 {
 		level++
 
 		if level > s.height {
@@ -85,7 +85,7 @@ func (s *skipList) insert(key string, ttl time.Time) *skipListNode {
 	return node
 }
 
-// Remove a node from the Skip list
+// Remove a node from the Skip list.
 func (s *skipList) remove(node *skipListNode) {
 	if node == nil {
 		return
@@ -112,27 +112,3 @@ func (s *skipList) remove(node *skipListNode) {
 		} // end for
 	}
 }
-
-/*
-func (s *skipList) debug() {
-
-	now := time.Now()
-	fmt.Println("")
-
-	current := s.head
-
-	for i := s.height; i >= 0; i-- {
-
-		for ; current.next[i] != nil; current = current.next[i] {
-
-			diff := int64(current.ttl.Sub(now) / time.Millisecond)
-			fmt.Print(diff)
-			fmt.Print("-")
-		}
-
-		fmt.Println("")
-
-	}
-
-}
-*/

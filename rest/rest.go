@@ -1,4 +1,4 @@
-package restclient
+package rest
 
 var dfltBuilder = RequestBuilder{}
 
@@ -91,7 +91,7 @@ func Options(url string) *Response {
 //
 // Whenever the Response is ready, the *f* function will be called back.
 //
-// AsyncGet uses the DefaultBuilder
+// AsyncGet uses the DefaultBuilder.
 func AsyncGet(url string, f func(*Response)) {
 	dfltBuilder.AsyncGet(url, f)
 }
@@ -101,7 +101,7 @@ func AsyncGet(url string, f func(*Response)) {
 //
 // Whenever the Response is ready, the *f* function will be called back.
 //
-// AsyncPost uses the DefaultBuilder
+// AsyncPost uses the DefaultBuilder.
 func AsyncPost(url string, body interface{}, f func(*Response)) {
 	dfltBuilder.AsyncPost(url, body, f)
 }
@@ -111,7 +111,7 @@ func AsyncPost(url string, body interface{}, f func(*Response)) {
 //
 // Whenever the Response is ready, the *f* function will be called back.
 //
-// AsyncPut uses the DefaultBuilder
+// AsyncPut uses the DefaultBuilder.
 func AsyncPut(url string, body interface{}, f func(*Response)) {
 	dfltBuilder.AsyncPut(url, body, f)
 }
@@ -121,7 +121,7 @@ func AsyncPut(url string, body interface{}, f func(*Response)) {
 //
 // Whenever the Response is ready, the *f* function will be called back.
 //
-// AsyncPatch uses the DefaultBuilder
+// AsyncPatch uses the DefaultBuilder.
 func AsyncPatch(url string, body interface{}, f func(*Response)) {
 	dfltBuilder.AsyncPatch(url, body, f)
 }
@@ -131,7 +131,7 @@ func AsyncPatch(url string, body interface{}, f func(*Response)) {
 //
 // Whenever the Response is ready, the *f* function will be called back.
 //
-// AsyncDelete uses the DefaultBuilder
+// AsyncDelete uses the DefaultBuilder.
 func AsyncDelete(url string, f func(*Response)) {
 	dfltBuilder.AsyncDelete(url, f)
 }
@@ -141,7 +141,7 @@ func AsyncDelete(url string, f func(*Response)) {
 //
 // Whenever the Response is ready, the *f* function will be called back.
 //
-// AsyncHead uses the DefaultBuilder
+// AsyncHead uses the DefaultBuilder.
 func AsyncHead(url string, f func(*Response)) {
 	dfltBuilder.AsyncHead(url, f)
 }
@@ -151,7 +151,7 @@ func AsyncHead(url string, f func(*Response)) {
 //
 // Whenever the Response is ready, the *f* function will be called back.
 //
-// AsyncOptions uses the DefaultBuilder
+// AsyncOptions uses the DefaultBuilder.
 func AsyncOptions(url string, f func(*Response)) {
 	dfltBuilder.AsyncOptions(url, f)
 }
@@ -163,9 +163,9 @@ func AsyncOptions(url string, f func(*Response)) {
 // The difference is that these methods return a FutureResponse, which holds a pointer to
 // Response. Response inside FutureResponse is nil until request has finished.
 //
-//	var futureA, futureB *restclient.FutureResponse
+//	var futureA, futureB *rest.FutureResponse
 //
-//	restclient.ForkJoin(func(c *restclient.Concurrent){
+//	rest.ForkJoin(func(c *rest.Concurrent){
 //		futureA = c.Get("/url/1")
 //		futureB = c.Get("/url/2")
 //	})
@@ -173,7 +173,7 @@ func AsyncOptions(url string, f func(*Response)) {
 //	fmt.Println(futureA.Response())
 //	fmt.Println(futureB.Response())
 //
-// AsyncOptions uses the DefaultBuilder
+// AsyncOptions uses the DefaultBuilder.
 func ForkJoin(f func(*Concurrent)) {
 	dfltBuilder.ForkJoin(f)
 }

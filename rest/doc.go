@@ -1,4 +1,4 @@
-// Package restclient is an extremely simple to use, lightweight, yet powerful REST Client.
+// Package rest is an extremely simple to use, lightweight, yet powerful REST Client.
 //
 // # Motivation
 //
@@ -15,7 +15,7 @@
 //   - Response Caching, based on response headers (cache-control, last-modified, etag, expires)
 //   - Local caching strategies: TTL, LRU & Max Byte Size.
 //   - Mockups!
-//   - Fork-Join request pattern, for sending many requests concurrently, getting better client performance.
+//   - Fork-Join request pattern, for sending many requests concurrently, getting better client perfomance.
 //   - Async request pattern.
 //   - Request Body can be `string`, `[]byte`, `struct` & `map`
 //   - Automatic marshal and unmarshal for `JSON` and `XML` Content-Type. Default JSON.
@@ -36,7 +36,7 @@
 //   - Testing +95%
 //
 // v0.5
-//   - Pluggable external caches like Memcached
+//   - Plugable external caches like Memcached
 //
 // # Caching
 //
@@ -50,20 +50,20 @@
 //
 // Installation
 //
-//	go get github.com/arielsrv/golang-toolkit/restclient
+//	go get github.com/go-loco/restful/rest
 //
 // Importing
 //
-//	import "github.com/arielsrv/golang-toolkit/restclient"
+//	import "github.com/go-loco/restful/rest"
 //
 // Simple GET
 //
-//	resp := restclient.Get("https://api.restfulsite.com/resource")
+//	resp := rest.Get("https://api.restfulsite.com/resource")
 //
 // Simple POST
 //
 //	// Using a `string` as body
-//	resp := restclient.Post("https://api.restfulsite.com/resource", "Body")
+//	resp := rest.Post("https://api.restfulsite.com/resource", "Body")
 //
 // Simple POST, with Struct Body
 //
@@ -74,10 +74,10 @@
 //
 //	body := new(User)
 //	body.Id = 1
-//	body.Name = "Hernan"
+//	body.Name = "Alice"
 //
 //	// body will be marshall as JSON
-//	resp := restclient.Post("https://api.restfulsite.com/resource/1", body)
+//	resp := rest.Post("https://api.restfulsite.com/resource/1", body)
 //	fmt.Println(resp)
 //
 // # Fork Join
@@ -89,11 +89,11 @@
 // The difference is that these methods return a FutureResponse, which holds a pointer to
 // Response. Response inside FutureResponse is nil until request has finished.
 //
-//	var f [3]*restclient.FutureResponse
+//	var f [3]*rest.FutureResponse
 //
 //	// ForkJoin will send all requests concurrently
 //	// and will wait until all requests have their correspondent responses
-//	restclient.ForkJoin(func(c *restclient.Concurrent) {
+//	rest.ForkJoin(func(c *rest.Concurrent) {
 //	  f[0] = c.Get("https://api.restfulsite.com/resource/1")
 //	  f[1] = c.Get("https://api.restfulsite.com/resource/2")
 //	  f[2] = c.Get("https://api.restfulsite.com/resource/3")
@@ -113,7 +113,7 @@
 // Whenever the Response is ready, the **f** function will be called back.
 //
 //	// This won't be blocked.
-//	restclient.AsyncGet("https://api.restfulsite.com/user", func(r *restclient.Response) {
+//	rest.AsyncGet("https://api.restfulsite.com/user", func(r *rest.Response) {
 //	  if r.StatusCode == http.StatusOK {
 //	    fmt.Println(r)
 //	  }
@@ -134,26 +134,25 @@
 //
 // # RequestBuilder
 //
-//	gives you the power to go beyond defaults.
-//
+// RequestBuilder gives you the power to go beyond defaults.
 // It is possible to set up headers, timeout, baseURL, proxy, contentType, not to use
 // cache, directly disabling timeout (in an explicit way), and setting max idle connections.
 //
 //	headers := make(http.Header)
 //	headers.Add("myHeader", "myValue")
 //
-//	var Rb = restclient.RequestBuilder{
+//	var rb = rest.RequestBuilder{
 //	  Headers:             headers,
 //	  Timeout:             200 * time.Millisecond,
 //	  BaseURL:             "https://baseURL",
 //	  Proxy:               "http://myproxy",
-//	  ContentType:         restclient.JSON,
+//	  ContentType:         rest.JSON,
 //	  DisableCache:        false,
 //	  DisableTimeout:      false,
 //	  MaxIdleConnsPerHost: 10,
 //	}
 //
-//	resp := Rb.Get("/mypath")
+//	resp := rb.Get("/mypath")
 //
 // # Mockups
 //
@@ -173,7 +172,7 @@
 //	myHeaders := make(http.Header)
 //	myHeaders.Add("Hello", "world")
 //
-//	mock := restclient.Mock{
+//	mock := rest.Mock{
 //	  URL:          myURL,
 //		HTTPMethod:   http.MethodGet,
 //		ReqHeaders:   myHeaders,
@@ -181,7 +180,7 @@
 //		RespBody:     "foo",
 //	}
 //
-//	restclient.AddMockups(&mock)
+//	rest.AddMockups(&mock)
 //
-//	v := restclient.Get(myURL)
-package restclient
+//	v := rest.Get(myURL)
+package rest

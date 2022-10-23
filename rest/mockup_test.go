@@ -1,9 +1,10 @@
-package restclient_test
+package rest_test
 
 import (
-	rest "github.com/arielsrv/golang-toolkit/restclient"
 	"net/http"
 	"testing"
+
+	"github.com/arielsrv/golang-toolkit/rest"
 )
 
 func TestMockup(t *testing.T) {
@@ -23,7 +24,7 @@ func TestMockup(t *testing.T) {
 		RespBody:     "foo",
 	}
 
-	_ = rest.AddMockups(&mock)
+	rest.AddMockups(&mock)
 
 	v := rest.Get(myURL)
 	if v.String() != "foo" {

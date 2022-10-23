@@ -1,12 +1,13 @@
-package restclient_test
+package rest_test
 
 import (
-	rest "github.com/arielsrv/golang-toolkit/restclient"
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/arielsrv/golang-toolkit/rest"
 )
 
 func TestGet(t *testing.T) {
@@ -20,7 +21,7 @@ func TestSlowGet(t *testing.T) {
 	var f [100]*rest.Response
 
 	for i := range f {
-		f[i] = Rb.Get("/slow/user")
+		f[i] = rb.Get("/slow/user")
 
 		if f[i].Response.StatusCode != http.StatusOK {
 			t.Fatal("f Status != OK (200)")
@@ -37,7 +38,7 @@ func TestHead(t *testing.T) {
 }
 
 func TestPost(t *testing.T) {
-	resp := rest.Post(server.URL+"/user", &User{Name: "Matilda"})
+	resp := rest.Post(server.URL+"/user", &User{Name: "Maria"})
 
 	if resp.StatusCode != http.StatusCreated {
 		t.Fatal("Status != OK (201)")
@@ -50,7 +51,7 @@ func TestPostXML(t *testing.T) {
 		ContentType: rest.XML,
 	}
 
-	resp := rbXML.Post("/xml/user", &User{Name: "Matilda"})
+	resp := rbXML.Post("/xml/user", &User{Name: "Maria"})
 
 	if resp.StatusCode != http.StatusCreated {
 		t.Fatal("Status != OK (201)")
@@ -110,7 +111,7 @@ func TestAsyncHead(t *testing.T) {
 }
 
 func TestAsyncPost(t *testing.T) {
-	rest.AsyncPost(server.URL+"/user", &User{Name: "Matilda"}, func(r *rest.Response) {
+	rest.AsyncPost(server.URL+"/user", &User{Name: "Maria"}, func(r *rest.Response) {
 		if r.StatusCode != http.StatusCreated {
 			t.Fatal("Status != OK (201)")
 		}
@@ -182,11 +183,12 @@ func TestWrongURL(t *testing.T) {
 	}
 }
 
-/*Increase percentage of net.go coverage */
+/*Increase percentage of net.go coverage. */
 func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
+	host := "saraza"
 	customPool := rest.CustomPool{
 		MaxIdleConnsPerHost: 100,
-		Proxy:               "http://saraza",
+		Proxy:               fmt.Sprintf("http://%s", host),
 	}
 
 	restClient := new(rest.RequestBuilder)
@@ -196,10 +198,11 @@ func TestRequestWithProxyAndFollowRedirect(t *testing.T) {
 	restClient.FollowRedirect = true
 
 	response := restClient.Get(server.URL + "/user")
-	// expected := "proxyconnect tcp: dial tcp: lookup saraza: no such host"
+	expected := fmt.Sprintf("Get \"%s/user\": proxyconnect tcp: dial tcp: lookup %s: no such host", server.URL, host)
 
-	assert.Error(t, response.Err)
-	assert.NotEmpty(t, response.Err.Error())
+	if !strings.Contains(response.Err.Error(), expected) {
+		t.Fatalf("Expected %v Error, Got %v as Response", expected, response.Err.Error())
+	}
 }
 
 func TestRequestSendingClientMetrics(t *testing.T) {
@@ -235,8 +238,8 @@ func TestResponseExceedsConnectTimeout(t *testing.T) {
 
 func TestResponseExceedsRequestTimeout(t *testing.T) {
 	restClient := rest.RequestBuilder{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
-	restClient.ConnectTimeout = 10 * time.Millisecond
-	restClient.Timeout = 1 * time.Millisecond
+	restClient.ConnectTimeout = 35 * time.Millisecond
+	restClient.Timeout = 9 * time.Millisecond
 	restClient.ContentType = rest.JSON
 
 	suResponse := restClient.Get(server.URL + "/slow/user")

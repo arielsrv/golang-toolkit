@@ -1,4 +1,4 @@
-package restclient
+package rest
 
 import (
 	"container/list"
@@ -12,7 +12,7 @@ import (
 // operation is done.
 //
 // FutureResponse will never be nil, and has a Response function for getting the
-// Response, that will be nil after the ForkJoin operation is completed
+// Response, that will be nil after the ForkJoin operation is completed.
 type FutureResponse struct {
 	p unsafe.Pointer
 }
@@ -30,13 +30,13 @@ func (fr *FutureResponse) Response() *Response {
 // The difference is that these methods return a FutureResponse, which holds a pointer to
 // Response. Response inside FutureResponse is nil until the request has finished.
 //
-//	restclient.ForkJoin(func(c *restclient.Concurrent){
+//	rest.ForkJoin(func(c *rest.Concurrent){
 //		futureA = c.Get("/url/1")
 //		futureB = c.Get("/url/2")
 //	})
 //
 // The difference is that Concurrent methods returns a FutureResponse, instead
-// of a Response
+// of a Response.
 type Concurrent struct {
 	list       list.List
 	wg         sync.WaitGroup

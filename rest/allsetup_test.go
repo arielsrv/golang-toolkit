@@ -1,9 +1,9 @@
-package restclient_test
+package rest_test
 
 import (
 	"encoding/json"
 	"encoding/xml"
-	rest "github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/arielsrv/golang-toolkit/rest"
 	"io"
 	"math/rand"
 	"net/http"
@@ -27,10 +27,10 @@ var server = httptest.NewServer(tmux)
 var users []User
 
 var userList = []string{
-	"Hernan", "Mariana", "Matilda", "Juan", "Pedro", "John", "Axel", "Mateo",
+	"Alice", "Bob", "Maria",
 }
 
-var Rb = rest.RequestBuilder{
+var rb = rest.RequestBuilder{
 	BaseURL: server.URL,
 }
 
@@ -86,18 +86,20 @@ func slowUsers(writer http.ResponseWriter, req *http.Request) {
 	allUsers(writer, req)
 }
 
-func usersCache(writer http.ResponseWriter, req *http.Request) { // Get
+func usersCache(writer http.ResponseWriter, req *http.Request) {
+	// Get
 	if req.Method == http.MethodGet {
 		c := rand.Intn(2) + 1
 		b, _ := json.Marshal(users)
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Cache-Control", "max-age="+strconv.Itoa(c))
-		_, _ = writer.Write(b)
+		writer.Write(b)
 	}
 }
 
-func usersCacheWithExpires(writer http.ResponseWriter, req *http.Request) { // Get
+func usersCacheWithExpires(writer http.ResponseWriter, req *http.Request) {
+	// Get
 	if req.Method == http.MethodGet {
 		c := rand.Intn(2) + 1
 		b, _ := json.Marshal(users)
@@ -106,7 +108,7 @@ func usersCacheWithExpires(writer http.ResponseWriter, req *http.Request) { // G
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Expires", expires.Format(rest.HTTPDateFormat))
-		_, _ = writer.Write(b)
+		writer.Write(b)
 	}
 }
 
@@ -124,7 +126,7 @@ func usersEtag(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("ETag", "1234")
-		_, _ = writer.Write(b)
+		writer.Write(b)
 	}
 }
 
@@ -142,7 +144,7 @@ func usersLastModified(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Last-Modified", lastModifiedDate.Format(rest.HTTPDateFormat))
-		_, _ = writer.Write(b)
+		writer.Write(b)
 	}
 }
 
@@ -153,7 +155,7 @@ func usersXML(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/xml")
 		writer.Header().Set("Cache-Control", "no-cache")
-		_, _ = writer.Write(b)
+		writer.Write(b)
 	}
 
 	// Post
@@ -175,7 +177,7 @@ func usersXML(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/xml")
 		writer.WriteHeader(http.StatusCreated)
-		_, _ = writer.Write(ub)
+		writer.Write(ub)
 
 		return
 	}
@@ -187,7 +189,7 @@ func oneUser(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Cache-Control", "no-cache")
-		_, _ = writer.Write(b)
+		writer.Write(b)
 		return
 	}
 
@@ -196,7 +198,7 @@ func oneUser(writer http.ResponseWriter, req *http.Request) {
 		b, _ := json.Marshal(users[0])
 
 		writer.Header().Set("Content-Type", "application/json")
-		_, _ = writer.Write(b)
+		writer.Write(b)
 		return
 	}
 
@@ -220,7 +222,7 @@ func allUsers(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Cache-Control", "no-cache")
-		_, _ = writer.Write(b)
+		writer.Write(b)
 		return
 	}
 
@@ -243,7 +245,7 @@ func allUsers(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusCreated)
-		_, _ = writer.Write(ub)
+		writer.Write(ub)
 
 		return
 	}
@@ -256,7 +258,7 @@ func allUsers(writer http.ResponseWriter, req *http.Request) {
 
 		writer.Header().Set("Content-Type", "text/plain")
 		writer.Header().Set("Cache-Control", "no-cache")
-		_, _ = writer.Write(b)
+		writer.Write(b)
 		return
 	}
 }

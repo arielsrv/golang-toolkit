@@ -1,10 +1,11 @@
-package restclient_test
+package rest_test
 
 import (
-	rest "github.com/arielsrv/golang-toolkit/restclient"
 	"net/http"
 	"strconv"
 	"testing"
+
+	"github.com/arielsrv/golang-toolkit/rest"
 )
 
 func TestForkJoin(t *testing.T) {
@@ -20,7 +21,7 @@ func TestForkJoin(t *testing.T) {
 		f[5] = cr.Patch(server.URL+"/user/3", &User{Name: "Pichucha"})
 		f[6] = cr.Options(server.URL + "/user")
 
-		post = cr.Post(server.URL+"/user", &User{Name: "Matilda"})
+		post = cr.Post(server.URL+"/user", &User{Name: "Maria"})
 	})
 
 	for i := range f {
@@ -42,7 +43,7 @@ func TestSlowForkJoinGet(t *testing.T) {
 	var f [100]*rest.FutureResponse
 
 	for x := 0; x < 50; x++ {
-		Rb.ForkJoin(func(cr *rest.Concurrent) {
+		rb.ForkJoin(func(cr *rest.Concurrent) {
 			for i := range f {
 				f[i] = cr.Get("/slow/user")
 			}

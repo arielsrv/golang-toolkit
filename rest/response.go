@@ -1,4 +1,4 @@
-package restclient
+package rest
 
 import (
 	"container/list"
@@ -53,9 +53,9 @@ func (r *Response) Bytes() []byte {
 	return r.byteBody
 }
 
-// Unmarshal set the *fill* parameter with the corresponding JSON or XML response.
-// fill could be `struct` or `map[string]interface{}`
-func (r *Response) Unmarshal(fill interface{}) error {
+// FillUp set the *fill* parameter with the corresponding JSON or XML response.
+// fill could be `struct` or `map[string]interface{}`.
+func (r *Response) FillUp(fill interface{}) error {
 	ctypeJSON := "application/json"
 	ctypeXML := "application/xml"
 
@@ -111,5 +111,6 @@ func (r *Response) Debug() string {
 	dump += separator
 	dump += strResp
 	dump += r.String() + "\n"
+
 	return dump
 }

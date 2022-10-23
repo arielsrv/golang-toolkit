@@ -1,10 +1,11 @@
-package restclient_test
+package rest_test
 
 import (
-	rest "github.com/arielsrv/golang-toolkit/restclient"
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/arielsrv/golang-toolkit/rest"
 )
 
 func TestResponseBytesAndString(t *testing.T) {
@@ -34,24 +35,24 @@ func TestDebug(t *testing.T) {
 func TestGetFillUpJSON(t *testing.T) {
 	var u []User
 
-	resp := Rb.Get("/user")
+	resp := rb.Get("/user")
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatal("Status != OK (200)")
 	}
 
-	err := resp.Unmarshal(&u)
+	err := resp.FillUp(&u)
 	if err != nil {
 		t.Fatal("Json fill up failed. Error: " + err.Error())
 	}
 
 	for _, v := range users {
-		if v.Name == "Hernan" {
+		if v.Name == "Alice" {
 			return
 		}
 	}
 
-	t.Fatal("Couldn't found Hernan")
+	t.Fatal("Couldn't found Alice")
 }
 
 func TestGetFillUpXML(t *testing.T) {
@@ -68,16 +69,16 @@ func TestGetFillUpXML(t *testing.T) {
 		t.Fatal("Status != OK (200)")
 	}
 
-	err := resp.Unmarshal(&u)
+	err := resp.FillUp(&u)
 	if err != nil {
 		t.Fatal("Json fill up failed. Error: " + err.Error())
 	}
 
 	for _, v := range users {
-		if v.Name == "Hernan" {
+		if v.Name == "Alice" {
 			return
 		}
 	}
 
-	t.Fatal("Couldn't found Hernan")
+	t.Fatal("Couldn't found Alice")
 }

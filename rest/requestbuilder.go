@@ -1,4 +1,4 @@
-package restclient
+package rest
 
 import (
 	"net/http"
@@ -7,36 +7,36 @@ import (
 )
 
 // The default transport used by all RequestBuilders
-// that haven't set up a CustomPool
+// that haven't set up a CustomPool.
 var defaultTransport http.RoundTripper
 
-// Sync once to set default client and transport to default Request Builder
+// Sync once to set default client and transport to default Request Builder.
 var dTransportMtxOnce sync.Once
 
 // DefaultTimeout is the default timeout for all clients.
 // DefaultConnectTimeout is the time it takes to make a connection
-// Type: time.Duration
+// Type: time.Duration.
 var DefaultTimeout = 500 * time.Millisecond
 
 var DefaultConnectTimeout = 1500 * time.Millisecond
 
 // DefaultMaxIdleConnsPerHost is the default maxium idle connections to have
 // per Host for all clients, that use *any* RequestBuilder that don't set
-// a CustomPool
+// a CustomPool.
 var DefaultMaxIdleConnsPerHost = 2
 
 // ContentType represents the Content Type for the Body of HTTP Verbs like
-// POST, PUT, and PATCH
+// POST, PUT, and PATCH.
 type ContentType int
 
 const (
-	// JSON represents a JSON Content Type
+	// JSON represents a JSON Content Type.
 	JSON ContentType = iota
 
-	// XML represents an XML Content Type
+	// XML represents an XML Content Type.
 	XML
 
-	// BYTES represents a plain Content Type
+	// BYTES represents a plain Content Type.
 	BYTES
 )
 
@@ -95,7 +95,7 @@ type CustomPool struct {
 }
 
 // BasicAuth gives the possibility to set UserName and Password for a given
-// RequestBuilder. Basic Auth is used by some APIs
+// RequestBuilder. Basic Auth is used by some APIs.
 type BasicAuth struct {
 	UserName string
 	Password string
@@ -140,7 +140,7 @@ func (rb *RequestBuilder) Put(url string, body interface{}) *Response {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Patch(url string, body interface{}) *Response {
-	return rb.doRequest(http.MethodPatch, url, body)
+	return rb.doRequest(http.MethodPatch, url, nil)
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL
@@ -238,9 +238,9 @@ func doAsyncRequest(r *Response, f func(*Response)) {
 // The difference is that these methods return a FutureResponse, which holds a pointer to
 // Response. Response inside FutureResponse is nil until the request has finished.
 //
-//	var futureA, futureB *restclient.FutureResponse
+//	var futureA, futureB *rest.FutureResponse
 //
-//	restclient.ForkJoin(func(c *restclient.Concurrent){
+//	rest.ForkJoin(func(c *rest.Concurrent){
 //		futureA = c.Get("/url/1")
 //		futureB = c.Get("/url/2")
 //	})
@@ -248,16 +248,16 @@ func doAsyncRequest(r *Response, f func(*Response)) {
 //	fmt.Println(futureA.Response())
 //	fmt.Println(futureB.Response())
 func (rb *RequestBuilder) ForkJoin(f func(*Concurrent)) {
-	concurrent := new(Concurrent)
-	concurrent.reqBuilder = rb
+	c := new(Concurrent)
+	c.reqBuilder = rb
 
-	f(concurrent)
+	f(c)
 
-	concurrent.wg.Add(concurrent.list.Len())
+	c.wg.Add(c.list.Len())
 
-	for e := concurrent.list.Front(); e != nil; e = e.Next() {
+	for e := c.list.Front(); e != nil; e = e.Next() {
 		go e.Value.(func())()
 	}
 
-	concurrent.wg.Wait()
+	c.wg.Wait()
 }

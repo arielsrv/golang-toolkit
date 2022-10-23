@@ -1,7 +1,7 @@
-package restclient
+package rest
 
 import (
-	"errors"
+	"flag"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -13,7 +13,8 @@ import (
 
 const MockNotFoundError string = "MockUp nil!"
 
-var mockUpEnv bool
+var mockUpEnv = flag.
+	Bool("mock", false, "Use 'mock' flag to tell package rest that you would like to use mockups.")
 var mockMap = make(map[string]*Mock)
 var mockDBMutex sync.RWMutex
 
@@ -59,16 +60,16 @@ type Mock struct {
 // StartMockupServer sets the enviroment to send all client requests
 // to the mockup server.
 func StartMockupServer() {
-	mockUpEnv = true
+	*mockUpEnv = true
 
 	if mockServer == nil {
 		startMockupServ()
 	}
 }
 
-// StopMockupServer stop sending requests to the mockup server
+// StopMockupServer stop sending requests to the mockup server.
 func StopMockupServer() {
-	mockUpEnv = false
+	*mockUpEnv = false
 	mockServer.Close()
 
 	mockServer = nil
@@ -77,7 +78,7 @@ func StopMockupServer() {
 }
 
 func startMockupServ() {
-	if mockUpEnv {
+	if *mockUpEnv {
 		mux = http.NewServeMux()
 		mockServer = httptest.NewServer(mux)
 		mux.HandleFunc("/", mockupHandler)
@@ -90,7 +91,6 @@ func startMockupServ() {
 	}
 }
 
-//nolint:nolintlint,gochecknoinits
 func init() {
 	startMockupServ()
 }
@@ -100,8 +100,7 @@ func AddMockups(mocks ...*Mock) error {
 	for _, m := range mocks {
 		normalizedURL, err := getNormalizedURL(m.URL)
 		if err != nil {
-			message := fmt.Sprintf("Error parsing mock with url=%s. Cause: %s", m.URL, err.Error())
-			return errors.New(message)
+			return fmt.Errorf("error parsing mock with url=%s. Cause: %w", m.URL, err)
 		}
 		mockDBMutex.Lock()
 		mockMap[m.HTTPMethod+" "+normalizedURL] = m
@@ -110,7 +109,6 @@ func AddMockups(mocks ...*Mock) error {
 	return nil
 }
 
-// check if a string url is valid and also sort query params in order to make the url easy to compare
 func getNormalizedURL(urlStr string) (string, error) {
 	urlObj, err := url.Parse(urlStr)
 	if err != nil {
@@ -129,11 +127,11 @@ func getNormalizedURL(urlStr string) (string, error) {
 			i++
 		}
 		sort.Strings(mk)
-		for i = 0; i < len(mk); i++ {
-			if i+1 < len(mk) {
-				result = fmt.Sprintf("%s%s=%s&", result, mk[i], urlObj.Query().Get(mk[i]))
+		for j := 0; j < len(mk); j++ {
+			if j+1 < len(mk) {
+				result = fmt.Sprintf("%s%s=%s&", result, mk[j], urlObj.Query().Get(mk[j]))
 			} else {
-				result = fmt.Sprintf("%s%s=%s", result, mk[i], urlObj.Query().Get(mk[i]))
+				result = fmt.Sprintf("%s%s=%s", result, mk[j], urlObj.Query().Get(mk[j]))
 			}
 		}
 	}
@@ -163,11 +161,11 @@ func mockupHandler(writer http.ResponseWriter, req *http.Request) {
 			}
 
 			writer.WriteHeader(m.RespHTTPCode)
-			_, _ = writer.Write([]byte(m.RespBody))
+			writer.Write([]byte(m.RespBody))
 			return
 		}
 	}
 
 	writer.WriteHeader(http.StatusBadRequest)
-	_, _ = writer.Write([]byte(MockNotFoundError))
+	writer.Write([]byte(MockNotFoundError))
 }

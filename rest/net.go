@@ -1,4 +1,4 @@
-package restclient
+package rest
 
 import (
 	"bytes"
@@ -24,8 +24,7 @@ var maxAge = regexp.MustCompile(`(?:max-age|s-maxage)=(\d+)`)
 
 const HTTPDateFormat string = "Mon, 01 Jan 2006 15:04:05 GMT"
 
-//nolint:nolintlint,nakedret
-func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interface{}) (result *Response) { //nolint:nolintlint,nonamedreturns
+func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interface{}) (result *Response) {
 	var cacheURL string
 	var cacheResp *Response
 
@@ -42,78 +41,75 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 		}
 	}
 
-	func(verb string, reqURL string, reqBody interface{}) {
-		// Marshal request to JSON or XML
-		body, err := rb.marshalReqBody(reqBody)
-		if err != nil {
-			result.Err = err
-			return
-		}
+	// Marshal request to JSON or XML
+	body, err := rb.marshalReqBody(reqBody)
+	if err != nil {
+		result.Err = err
+		return
+	}
 
-		// Change URL to point to Mockup server
-		reqURL, cacheURL, err = checkMockup(reqURL)
-		if err != nil {
-			result.Err = err
-			return
-		}
+	// Change URL to point to Mockup server
+	reqURL, cacheURL, err = checkMockup(reqURL)
+	if err != nil {
+		result.Err = err
+		return
+	}
 
-		// Get Client (client + transport)
-		client := rb.getClient()
+	// Get Client (client + transport)
+	client := rb.getClient()
 
-		request, err := http.NewRequestWithContext(context.Background(), verb, reqURL, bytes.NewBuffer(body))
-		if err != nil {
-			result.Err = err
-			return
-		}
+	request, err := http.NewRequestWithContext(context.Background(), verb, reqURL, bytes.NewBuffer(body))
+	if err != nil {
+		result.Err = err
+		return
+	}
 
-		// Set extra parameters
-		rb.setParams(request, cacheResp, cacheURL)
+	// Set extra parameters
+	rb.setParams(request, cacheResp, cacheURL)
 
-		// Make the request
-		httpResp, err := client.Do(request)
-		if err != nil {
-			result.Err = err
-			return
-		}
+	// Make the request
+	httpResp, err := client.Do(request)
+	if err != nil {
+		result.Err = err
+		return
+	}
 
-		// Read response
-		defer httpResp.Body.Close()
-		respBody, err := io.ReadAll(httpResp.Body)
-		if err != nil {
-			result.Err = err
-			return
-		}
+	// Read response
+	defer httpResp.Body.Close()
+	respBody, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		result.Err = err
+		return
+	}
 
-		// If we get a 304, return response from cache
-		if httpResp.StatusCode == http.StatusNotModified {
-			result = cacheResp
-			return
-		}
+	// If we get a 304, return response from cache
+	if httpResp.StatusCode == http.StatusNotModified {
+		result = cacheResp
+		return
+	}
 
-		result.Response = httpResp
-		result.byteBody = respBody
+	result.Response = httpResp
+	result.byteBody = respBody
 
-		ttl := setTTL(result)
-		lastModified := setLastModified(result)
-		etag := setETag(result)
+	ttl := setTTL(result)
+	lastModified := setLastModified(result)
+	etag := setETag(result)
 
-		if !ttl && (lastModified || etag) {
-			result.revalidate = true
-		}
+	if !ttl && (lastModified || etag) {
+		result.revalidate = true
+	}
 
-		// If Cache enable: Cache SETNX
-		if !rb.DisableCache && matchVerbs(verb, readVerbs) && (ttl || lastModified || etag) {
-			resourceCache.setNX(cacheURL, result)
-		}
-	}(verb, reqURL, reqBody)
-
+	// If Cache enable: Cache SETNX
+	if !rb.DisableCache && matchVerbs(verb, readVerbs) && (ttl || lastModified || etag) {
+		resourceCache.setNX(cacheURL, result)
+	}
 	return
 }
 
 func checkMockup(reqURL string) (string, string, error) {
 	cacheURL := reqURL
 
-	if mockUpEnv {
+	if *mockUpEnv {
 		rURL, err := url.Parse(reqURL)
 		if err != nil {
 			return reqURL, cacheURL, err
@@ -128,8 +124,7 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-//nolint:nolintlint,nakedret
-func (rb *RequestBuilder) marshalReqBody(body interface{}) (b []byte, err error) { //nolint:nonamedreturns
+func (rb *RequestBuilder) marshalReqBody(body interface{}) (b []byte, err error) {
 	if body != nil {
 		switch rb.ContentType {
 		case JSON:
@@ -166,7 +161,7 @@ func (rb *RequestBuilder) getClient() *http.Client {
 
 		tr := defaultTransport
 
-		if cp := rb.CustomPool; cp != nil { //nolint:nolintlint,nestif
+		if cp := rb.CustomPool; cp != nil {
 			if cp.Transport == nil {
 				tr = &http.Transport{
 					MaxIdleConnsPerHost:   rb.CustomPool.MaxIdleConnsPerHost,
@@ -245,7 +240,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 	req.Header.Set("Cache-Control", "no-cache")
 
 	// If mockup
-	if mockUpEnv {
+	if *mockUpEnv {
 		req.Header.Set("X-Original-URL", cacheURL)
 	}
 
@@ -265,7 +260,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 	// Encoding
 	var cType string
 
-	switch rb.ContentType { //nolint:nolintlint,exhaustive
+	switch rb.ContentType {
 	case JSON:
 		cType = "json"
 	case XML:
@@ -300,8 +295,7 @@ func matchVerbs(s string, sarray [3]string) bool {
 	return false
 }
 
-//nolint:nolintlint,nakedret
-func setTTL(resp *Response) (set bool) { //nolint:nolintlint,nonamedreturns
+func setTTL(resp *Response) (set bool) {
 	now := time.Now()
 
 	// Cache-Control Header

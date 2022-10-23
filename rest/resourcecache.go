@@ -1,4 +1,4 @@
-package restclient
+package rest
 
 import (
 	"container/list"
@@ -12,25 +12,25 @@ import (
 // The cache itself.
 var resourceCache *resourceTTLLruMap
 
-// ByteSize is a helper for configuring MaxCacheSize
+// ByteSize is a helper for configuring MaxCacheSize.
 type ByteSize int64
 
 const (
 	_ = iota
 
-	// KB = KiloBytes
+	// KB = KiloBytes.
 	KB ByteSize = 1 << (10 * iota)
 
-	// MB = MegaBytes
+	// MB = MegaBytes.
 	MB
 
-	// GB = GigaBytes
+	// GB = GigaBytes.
 	GB
 )
 
 // MaxCacheSize is the Maxium Byte Size to be hold by the ResourceCache
 // Default is 1 GigaByte
-// Type: restclient.ByteSize
+// Type: rest.ByteSize.
 var MaxCacheSize = 1 * GB
 
 // Current Cache Size.
@@ -60,7 +60,6 @@ type resourceTTLLruMap struct {
 	rwMutex  sync.RWMutex // Read Write Locking Mutex
 }
 
-//nolint:nolintlint,gochecknoinits
 func init() {
 	resourceCache = &resourceTTLLruMap{
 		cache:    make(map[string]*Response),
@@ -93,13 +92,15 @@ func (rCache *resourceTTLLruMap) lruOperations() {
 	}
 }
 
-func (rCache *resourceTTLLruMap) get(key string) *Response { // Read lock only
+func (rCache *resourceTTLLruMap) get(key string) *Response {
+	// Read lock only
 	rCache.rwMutex.RLock()
 	resp := rCache.cache[key]
 	rCache.rwMutex.RUnlock()
 
 	// If expired, remove it
-	if resp != nil && resp.ttl != nil && time.Until(*resp.ttl) <= 0 { // Full lock
+	if resp != nil && resp.ttl != nil && time.Until(*resp.ttl) <= 0 {
+		// Full lock
 		rCache.rwMutex.Lock()
 		defer rCache.rwMutex.Unlock()
 
@@ -113,7 +114,8 @@ func (rCache *resourceTTLLruMap) get(key string) *Response { // Read lock only
 		}
 	}
 
-	if resp != nil { // Buffered msg to LruList
+	if resp != nil {
+		// Buffered msg to LruList
 		// Move forward
 		rCache.lruChan <- &lruMsg{
 			operation: move,
@@ -124,8 +126,9 @@ func (rCache *resourceTTLLruMap) get(key string) *Response { // Read lock only
 	return resp
 }
 
-// Set if key not exist
-func (rCache *resourceTTLLruMap) setNX(key string, value *Response) { // Full Lock
+// Set if key not exist.
+func (rCache *resourceTTLLruMap) setNX(key string, value *Response) {
+	// Full Lock
 	rCache.rwMutex.Lock()
 	defer rCache.rwMutex.Unlock()
 
@@ -140,7 +143,7 @@ func (rCache *resourceTTLLruMap) setNX(key string, value *Response) { // Full Lo
 			resp:      value,
 		}
 
-		// Set ttl if necessary
+		// Set ttl if necesary
 		if value.ttl != nil {
 			value.skipListElement = rCache.skipList.insert(key, *value.ttl)
 			rCache.ttlChan <- true
@@ -177,7 +180,8 @@ func (rCache *resourceTTLLruMap) remove(key string, resp *Response) {
 	cacheSize -= resp.size()
 }
 
-func (rCache *resourceTTLLruMap) ttl() { // Function to send a message when the timer expires
+func (rCache *resourceTTLLruMap) ttl() {
+	// Function to send a message when the timer expires
 	backToFuture := func() {
 		rCache.ttlChan <- true
 	}
@@ -193,7 +197,7 @@ func (rCache *resourceTTLLruMap) ttl() { // Function to send a message when the 
 
 		now := time.Now()
 
-		// Traverse the skipList which is ordered by ttl.
+		// Traverse the skiplist which is ordered by ttl.
 		// We do this by looping at level 0
 		for node := rCache.skipList.head.next[0]; node != nil; node = node.next[0] {
 			timeLeft := node.ttl.Sub(now)
