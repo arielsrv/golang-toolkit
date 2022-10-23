@@ -1,15 +1,18 @@
 # golang-toolkit
+
 [![CI](https://github.com/tj-actions/coverage-badge-go/workflows/CI/badge.svg)](https://github.com/tj-actions/coverage-badge-go/actions?query=workflow%3ACI)
-![Coverage](https://img.shields.io/badge/Coverage-87.1%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-84.7%25-brightgreen)
 [![Update release version.](https://github.com/tj-actions/coverage-badge-go/workflows/Update%20release%20version./badge.svg)](https://github.com/tj-actions/coverage-badge-go/actions?query=workflow%3A%22Update+release+version.%22)
 
 ## Developer tools
+
 - [Golang Lint](https://golangci-lint.run/)
 - [Golang Task](https://taskfile.dev/)
 - [Golang Dependencies Update](https://github.com/oligot/go-mod-upgrade)
 - [jq](https://stedolan.github.io/jq/)
 
 ### For macOs
+
 ```shell
 $ brew install go-task/tap/go-task
 $ brew install golangci-lint
@@ -18,14 +21,16 @@ $ brew install jq
 ```
 
 ## Table of contents
+
 * [RESTClient](#rest-client)
 * [KeyValueStore](#key-value-store)
 
 ## Rest Client
 
 # Installation
+
 ```sh
-go get -u github.com/arielsrv/golang-toolkit/restclient
+go get -u github.com/arielsrv/golang-toolkit/rest
 ```
 
 # ⚡️ Quickstart
@@ -34,77 +39,66 @@ go get -u github.com/arielsrv/golang-toolkit/restclient
 package main
 
 import (
-	"errors"
-	"github.com/arielsrv/golang-toolkit/examples/service"
-	"github.com/arielsrv/golang-toolkit/restclient"
+	"github.com/arielsrv/golang-toolkit/rest"
 	"log"
+	"net/http"
+	"strconv"
 	"time"
 )
 
-type UserResponse struct {
-	ID   int64  `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+type UserDto struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Gender string `json:"gender"`
+	Status string `json:"status"`
 }
 
 func main() {
-	restPool, err := restclient.
-		NewRESTPoolBuilder().
-		WithName("users").
-		WithTimeout(time.Millisecond * 1000).
-		WithMaxConnectionsPerHost(20).
-		WithMaxIdleConnectionsPerHost(20).
-		Build()
-
-	if err != nil {
-		log.Fatalln(err)
+	requestBuilder := rest.RequestBuilder{
+		Timeout:        time.Millisecond * 3000,
+		ConnectTimeout: time.Millisecond * 5000,
+		BaseURL:        "https://gorest.co.in/public/v2",
 	}
 
-	restClient := restclient.
-		NewRESTClient(*restPool)
+	// This won't be blocked.
+	requestBuilder.AsyncGet("/users", func(response *rest.Response) {
+		if response.StatusCode == http.StatusOK {
+			log.Println(response)
+		}
+	})
 
-	// Generic get
-	usersResponse, err := restclient.
-		Read[[]UserResponse]{RESTClient: restClient}.
-		Get("https://gorest.co.in/public/v2/users", nil)
+	response := requestBuilder.Get("/users")
+	if response.StatusCode != http.StatusOK {
+		log.Fatal(response.Err.Error())
+	}
 
-	if err != nil {
-		var restClientError *restclient.APIError
-		switch {
-		case errors.As(err, &restClientError):
-			log.Println(err.Error())
-			log.Println(usersResponse.Status)
-		default:
-			log.Printf("unexpected error: %s\n", err)
+	var usersDto []UserDto
+	response.FillUp(&usersDto)
+
+	var futures []*rest.FutureResponse
+
+	requestBuilder.ForkJoin(func(c *rest.Concurrent) {
+		for i := 0; i < len(usersDto); i++ {
+			futures = append(futures, c.Get("/users/"+strconv.Itoa(usersDto[i].ID)))
+		}
+	})
+
+	log.Println("Wait all ...")
+	startTime := time.Now()
+	for i := range futures {
+		if futures[i].Response().StatusCode == http.StatusOK {
+			var userDto UserDto
+			futures[i].Response().FillUp(&userDto)
+			log.Println("\t" + userDto.Name)
 		}
 	}
-
-	for _, userResponse := range usersResponse.Data {
-		log.Printf("User: ID: %d, Name: %s", userResponse.ID, userResponse.Name)
-	}
-
-	// Generic post
-	userRequest := &service.UserRequest{
-		Name: "John Doe",
-	}
-
-	result, err := restclient.
-		Write[service.UserRequest, UserResponse]{RESTClient: restClient}.
-		Post("https://gorest.co.in/public/v2/users", *userRequest, nil)
-
-	if err != nil {
-		var restClientError *restclient.APIBadRequestError
-		switch {
-		case errors.As(err, &restClientError):
-			log.Println(err.Error())
-			log.Println(result.Status)
-		default:
-			log.Printf("unexpected error: %s\n", err)
-		}
-	}
-
-	log.Printf("User: ID: %d, Name: %s", result.Data.ID, result.Data.Name)
+	elapsedTime := time.Since(startTime)
+	log.Printf("Elapsed time: %d", elapsedTime)
 }
+
 ```
 
 ## Key Value Store
+
 # TODO
