@@ -1,12 +1,7 @@
 go 1.19
 
 use (
-	./common
 	./restclient
 	examples/restclient
 	webserver
 )
-
-replace github.com/arielsrv/golang-toolkit/common v0.0.6 => ./common
-
-replace github.com/arielsrv/golang-toolkit/restclient v0.2.2 => ./restclient
