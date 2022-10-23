@@ -1,15 +1,15 @@
 version: 2
 updates:
   - package-ecosystem: gomod
-    directory: /restclient
+    directory: /rest
     schedule:
       interval: daily
   - package-ecosystem: gomod
-    directory: /examples/restclient
+    directory: /webserver
     schedule:
       interval: daily
   - package-ecosystem: gomod
-    directory: /common
+    directory: /examples/rest
     schedule:
       interval: daily
   - package-ecosystem: github-actions
