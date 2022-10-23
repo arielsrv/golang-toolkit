@@ -9,7 +9,7 @@ updates:
     schedule:
       interval: daily
   - package-ecosystem: gomod
-    directory: /examples/restclient
+    directory: /examples/rest
     schedule:
       interval: daily
   - package-ecosystem: github-actions
