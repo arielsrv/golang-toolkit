@@ -28,7 +28,7 @@ const (
 	GB
 )
 
-// MaxCacheSize is the Maxium Byte Size to be hold by the ResourceCache
+// MaxCacheSize is the Maximum Byte Size to be hold by the ResourceCache
 // Default is 1 GigaByte
 // Type: rest.ByteSize.
 var MaxCacheSize = 1 * GB
@@ -143,7 +143,7 @@ func (rCache *resourceTTLLruMap) setNX(key string, value *Response) {
 			resp:      value,
 		}
 
-		// Set ttl if necesary
+		// Set ttl if necessary
 		if value.ttl != nil {
 			value.skipListElement = rCache.skipList.insert(key, *value.ttl)
 			rCache.ttlChan <- true

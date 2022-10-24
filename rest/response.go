@@ -43,7 +43,7 @@ func (r *Response) size() int64 {
 	return size
 }
 
-// String return the Respnse Body as a String.
+// String return the Response Body as a String.
 func (r *Response) String() string {
 	return string(r.Bytes())
 }

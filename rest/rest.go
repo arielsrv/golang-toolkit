@@ -29,7 +29,7 @@ func Post(url string, body interface{}) *Response {
 // Put issues a PUT HTTP verb to the specified URL.
 //
 // In Restful, PUT is used for "updating" a resource.
-// Client should expect a response status code of of 200(OK), 404(Not Found),
+// Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
@@ -42,7 +42,7 @@ func Put(url string, body interface{}) *Response {
 // Patch issues a PATCH HTTP verb to the specified URL
 //
 // In Restful, PATCH is used for "partially updating" a resource.
-// Client should expect a response status code of of 200(OK), 404(Not Found),
+// Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
@@ -55,7 +55,7 @@ func Patch(url string, body interface{}) *Response {
 // Delete issues a DELETE HTTP verb to the specified URL
 //
 // In Restful, DELETE is used to "delete" a resource.
-// Client should expect a response status code of of 200(OK), 404(Not Found),
+// Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 //
 // Delete uses the DefaultBuilder.

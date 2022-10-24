@@ -69,7 +69,7 @@ func (c *Concurrent) Post(url string, body interface{}) *FutureResponse {
 // concurrent requests that may be called.
 //
 // In Restful, PATCH is used for "partially updating" a resource.
-// Client should expect a response status code of of 200(OK), 404(Not Found),
+// Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
@@ -81,7 +81,7 @@ func (c *Concurrent) Patch(url string, body interface{}) *FutureResponse {
 // concurrent requests that may be called.
 //
 // In Restful, PUT is used for "updating" a resource.
-// Client should expect a response status code of of 200(OK), 404(Not Found),
+// Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
@@ -93,7 +93,7 @@ func (c *Concurrent) Put(url string, body interface{}) *FutureResponse {
 // concurrent requests that may be called.
 //
 // In Restful, DELETE is used to "delete" a resource.
-// Client should expect a response status code of of 200(OK), 404(Not Found),
+// Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 func (c *Concurrent) Delete(url string) *FutureResponse {
 	return c.doRequest(http.MethodDelete, url, nil)

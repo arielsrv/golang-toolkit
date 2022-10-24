@@ -140,7 +140,7 @@ func (rb *RequestBuilder) Put(url string, body interface{}) *Response {
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (rb *RequestBuilder) Patch(url string, body interface{}) *Response {
-	return rb.doRequest(http.MethodPatch, url, nil)
+	return rb.doRequest(http.MethodPatch, url, body)
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL
