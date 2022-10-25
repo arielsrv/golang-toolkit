@@ -36,6 +36,9 @@ const (
 	// XML represents an XML Content Type.
 	XML
 
+	// FORM represents an FORM Content Type.
+	FORM
+
 	// BYTES represents a plain Content Type.
 	BYTES
 )

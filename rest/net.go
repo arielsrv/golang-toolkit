@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -42,7 +43,7 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	}
 
 	// Marshal request to JSON or XML
-	body, err := rb.marshalReqBody(reqBody)
+	reader, err := rb.marshalReqBody(reqBody)
 	if err != nil {
 		result.Err = err
 		return
@@ -58,7 +59,8 @@ func (rb *RequestBuilder) doRequest(verb string, reqURL string, reqBody interfac
 	// Get Client (client + transport)
 	client := rb.getClient()
 
-	request, err := http.NewRequestWithContext(context.Background(), verb, reqURL, bytes.NewBuffer(body))
+	request, err := http.NewRequestWithContext(context.Background(), verb, reqURL, reader)
+
 	if err != nil {
 		result.Err = err
 		return
@@ -124,22 +126,27 @@ func checkMockup(reqURL string) (string, string, error) {
 	return reqURL, cacheURL, nil
 }
 
-func (rb *RequestBuilder) marshalReqBody(body interface{}) (b []byte, err error) {
+func (rb *RequestBuilder) marshalReqBody(body interface{}) (io.Reader, error) {
 	if body != nil {
 		switch rb.ContentType {
 		case JSON:
-			b, err = json.Marshal(body)
+			b, err := json.Marshal(body)
+			return bytes.NewBuffer(b), err
 		case XML:
-			b, err = xml.Marshal(body)
+			b, err := xml.Marshal(body)
+			return bytes.NewBuffer(b), err
+		case FORM:
+			return strings.NewReader(body.(url.Values).Encode()), nil
 		case BYTES:
 			var ok bool
-			b, ok = body.([]byte)
+			b, ok := body.([]byte)
 			if !ok {
-				err = fmt.Errorf("bytes: body is %T(%v) not a byte slice", body, body)
+				return nil, fmt.Errorf("bytes: body is %T(%v) not a byte slice", body, body)
 			}
+			return bytes.NewBuffer(b), nil
 		}
 	}
-	return
+	return nil, nil
 }
 
 func (rb *RequestBuilder) getClient() *http.Client {
@@ -254,7 +261,7 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 		if rb.UserAgent != "" {
 			return rb.UserAgent
 		}
-		return "github.com/go-loco/restful"
+		return "github.com/arielsrv/rest"
 	}())
 
 	// Encoding
@@ -265,6 +272,8 @@ func (rb *RequestBuilder) setParams(req *http.Request, cacheResp *Response, cach
 		cType = "json"
 	case XML:
 		cType = "xml"
+	case FORM:
+		cType = "x-www-form-urlencoded"
 	}
 
 	if cType != "" {
