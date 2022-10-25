@@ -13,8 +13,7 @@ import (
 
 const MockNotFoundError string = "MockUp nil!"
 
-var mockUpEnv = flag.
-	Bool("mock", false, "Use 'mock' flag to tell package rest that you would like to use mockups.")
+var mockUpEnv = flag.Bool("mock", false, "Use 'mock' flag to tell package rest that you would like to use mockups.")
 var mockMap = make(map[string]*Mock)
 var mockDBMutex sync.RWMutex
 

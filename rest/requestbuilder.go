@@ -20,7 +20,7 @@ var DefaultTimeout = 500 * time.Millisecond
 
 var DefaultConnectTimeout = 1500 * time.Millisecond
 
-// DefaultMaxIdleConnsPerHost is the default maxium idle connections to have
+// DefaultMaxIdleConnsPerHost is the default maximum idle connections to have
 // per Host for all clients, that use *any* RequestBuilder that don't set
 // a CustomPool.
 var DefaultMaxIdleConnsPerHost = 2
@@ -45,7 +45,7 @@ const (
 // RequestBuilder si thread-safe, and you should store it for later re-used.
 type RequestBuilder struct {
 
-	// Headers to be send in the request
+	// Headers to be sent in the request
 	Headers http.Header
 
 	// Complete request time out.
@@ -76,10 +76,10 @@ type RequestBuilder struct {
 	// Set Basic Auth for this RequestBuilder
 	BasicAuth *BasicAuth
 
-	// Set an specific User Agent for this RequestBuilder
+	// Set a specific User Agent for this RequestBuilder
 	UserAgent string
 
-	// Public for custom fine tuning
+	// Public for custom fine-tuning
 	Client *http.Client
 
 	clientMtxOnce sync.Once
@@ -90,7 +90,7 @@ type CustomPool struct {
 	MaxIdleConnsPerHost int
 	Proxy               string
 
-	// Public for custom fine tuning
+	// Public for custom fine-tuning
 	Transport http.RoundTripper
 }
 
@@ -124,7 +124,7 @@ func (rb *RequestBuilder) Post(url string, body interface{}) *Response {
 // Put issues a PUT HTTP verb to the specified URL.
 //
 // In Restful, PUT is used for "updating" a resource.
-// Client should expect a response status code of of 200(OK), 404(Not Found),
+// Client should expect a response status code of 200(OK), 404(Not Found),
 // or 400(Bad Request). 200(OK) could be also 204(No Content)
 //
 // Body could be any of the form: string, []byte, struct & map.
