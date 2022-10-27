@@ -6,7 +6,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.39.0
 	github.com/gofiber/swagger v0.1.7
 	github.com/stretchr/testify v1.8.1
-	github.com/valyala/fasthttp v1.40.0
+	github.com/valyala/fasthttp v1.41.0
 )
 
 require (
@@ -20,7 +20,7 @@ require (
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.15.0 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
