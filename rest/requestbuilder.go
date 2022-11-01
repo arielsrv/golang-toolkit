@@ -43,6 +43,24 @@ const (
 	BYTES
 )
 
+type IRequestBuilder interface {
+	Get(url string) *Response
+	Post(url string, body interface{}) *Response
+	Put(url string, body interface{}) *Response
+	Patch(url string, body interface{}) *Response
+	Delete(url string) *Response
+	Head(url string) *Response
+	Options(url string) *Response
+	AsyncGet(url string, f func(*Response))
+	AsyncPost(url string, body interface{}, f func(*Response))
+	AsyncPut(url string, body interface{}, f func(*Response))
+	AsyncPatch(url string, body interface{}, f func(*Response))
+	AsyncDelete(url string, f func(*Response))
+	AsyncHead(url string, f func(*Response))
+	AsyncOptions(url string, f func(*Response))
+	ForkJoin(f func(*Concurrent))
+}
+
 // RequestBuilder is the baseline for creating requests
 // There's a Default Builder that you may use for simple requests
 // RequestBuilder si thread-safe, and you should store it for later re-used.
@@ -63,7 +81,7 @@ type RequestBuilder struct {
 	// ContentType
 	ContentType ContentType
 
-	// Disable internal caching of Responses
+	// Disable 	internal caching of Responses
 	DisableCache bool
 
 	// Disable timeout and default timeout = no timeout
