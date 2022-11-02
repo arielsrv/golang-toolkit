@@ -4,7 +4,8 @@ go 1.19
 
 require (
 	github.com/arielsrv/golang-toolkit/rest v0.1.0
-	github.com/arielsrv/golang-toolkit/webserver v0.0.2
+	github.com/arielsrv/golang-toolkit/server v0.0.3
+	github.com/gofiber/fiber/v2 v2.39.0
 )
 
 require (
@@ -16,10 +17,9 @@ require (
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
-	github.com/gofiber/fiber/v2 v2.39.0 // indirect
 	github.com/gofiber/swagger v0.1.7 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.15.0 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
@@ -28,7 +28,7 @@ require (
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
 	github.com/swaggo/swag v1.8.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.40.0 // indirect
+	github.com/valyala/fasthttp v1.41.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/net v0.0.0-20221002022538-bcab6841153b // indirect
 	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
@@ -37,6 +37,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/arielsrv/golang-toolkit/webserver v0.0.2 => ../webserver
+replace github.com/arielsrv/golang-toolkit/server v0.0.3 => ./../server
 
 replace github.com/arielsrv/golang-toolkit/rest v0.1.0 => ../rest

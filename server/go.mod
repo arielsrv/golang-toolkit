@@ -1,4 +1,4 @@
-module github.com/arielsrv/golang-toolkit/webserver
+module github.com/arielsrv/golang-toolkit/server
 
 go 1.19
 

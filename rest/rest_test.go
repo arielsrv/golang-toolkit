@@ -238,8 +238,8 @@ func TestResponseExceedsConnectTimeout(t *testing.T) {
 
 func TestResponseExceedsRequestTimeout(t *testing.T) {
 	restClient := rest.RequestBuilder{CustomPool: &rest.CustomPool{Transport: &http.Transport{}}}
-	restClient.ConnectTimeout = 35 * time.Millisecond
-	restClient.Timeout = 9 * time.Millisecond
+	restClient.ConnectTimeout = 400 * time.Millisecond
+	restClient.Timeout = 100 * time.Millisecond
 	restClient.ContentType = rest.JSON
 
 	suResponse := restClient.Get(server.URL + "/slow/user")

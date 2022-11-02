@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: daily
   - package-ecosystem: gomod
-    directory: /webserver
+    directory: /server
     schedule:
       interval: daily
   - package-ecosystem: gomod
