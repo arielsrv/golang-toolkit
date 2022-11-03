@@ -12,13 +12,13 @@ type Task struct {
 	Err error
 }
 
-type Concurrent struct {
+type Awaitable struct {
 	list        list.List
 	wg          sync.WaitGroup
 	taskBuilder *Builder
 }
 
-func Await[T any](c *Concurrent, f func() (T, error)) *Task {
+func Await[T any](c *Awaitable, f func() (T, error)) *Task {
 	fr := new(Task)
 
 	future := func() {
@@ -36,8 +36,8 @@ func Await[T any](c *Concurrent, f func() (T, error)) *Task {
 type Builder struct {
 }
 
-func (tb *Builder) ForkJoin(f func(*Concurrent)) {
-	c := new(Concurrent)
+func (tb *Builder) ForkJoin(f func(*Awaitable)) {
+	c := new(Awaitable)
 	c.taskBuilder = tb
 
 	f(c)

@@ -12,7 +12,7 @@ func TestBuilder_ForkJoin(t *testing.T) {
 
 	tb := &task.Builder{}
 
-	tb.ForkJoin(func(c *task.Concurrent) {
+	tb.ForkJoin(func(c *task.Awaitable) {
 		future1 = task.Await[int](c, func() (int, error) { return 1, nil })
 		future2 = task.Await[int](c, func() (int, error) { return 1, nil })
 	})
