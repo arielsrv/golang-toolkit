@@ -4,6 +4,7 @@ import (
 	"github.com/arielsrv/golang-toolkit/task"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 // https://go.dev/play/p/yViud-GNlh2
@@ -12,9 +13,17 @@ func TestBuilder_ForkJoin(t *testing.T) {
 
 	tb := &task.Builder{}
 
+	start := time.Now()
+
 	tb.ForkJoin(func(c *task.Awaitable) {
-		future1 = task.Await[int](c, func() (int, error) { return 1, nil })
-		future2 = task.Await[int](c, func() (int, error) { return 1, nil })
+		future1 = task.Await[int](c, func() (int, error) {
+			time.Sleep(time.Millisecond * 1000)
+			return 1, nil
+		})
+		future2 = task.Await[int](c, func() (int, error) {
+			time.Sleep(time.Millisecond * 1000)
+			return 1, nil
+		})
 	})
 
 	assert.NoError(t, future1.Err)
@@ -24,4 +33,5 @@ func TestBuilder_ForkJoin(t *testing.T) {
 	actual2 := (*int)(future1.Ptr)
 
 	assert.Equal(t, 2, *actual1+*actual2)
+	assert.Greater(t, time.Millisecond*(1000*1.01), time.Since(start))
 }
