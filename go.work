@@ -3,5 +3,6 @@ go 1.19
 use (
 	./rest
 	./server
+	./task
 	examples
 )
