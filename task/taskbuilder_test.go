@@ -8,37 +8,35 @@ import (
 	"time"
 )
 
-// https://go.dev/play/p/yViud-GNlh2
 func TestBuilder_ForkJoin(t *testing.T) {
-	var future1 *task.Task[int]
-	var future2 *task.Task[int]
+	var future1, future2 *task.Task[int]
 
 	tb := &task.Builder{}
 
 	start := time.Now()
-
 	tb.ForkJoin(func(c *task.Awaitable) {
 		future1 = task.Await[int](c, func() (int, error) {
-			log.Println("future1")
 			time.Sleep(time.Millisecond * 1000)
-			return 1, nil
+			return 2, nil
 		})
 		future2 = task.Await[int](c, func() (int, error) {
-			log.Println("future2")
 			time.Sleep(time.Millisecond * 1000)
-			return 1, nil
+			return 3, nil
 		})
 	})
 
-	actual1 := future1.GetResult()
-	assert.NotNil(t, actual1.Result)
-	assert.NoError(t, actual1.Err)
-	assert.Equal(t, 1, actual1.Result)
+	assert.NotNil(t, future1.Result)
+	assert.NoError(t, future1.Err)
+	assert.Equal(t, 2, future1.Result)
 
-	actual2 := future2.GetResult()
-	assert.NotNil(t, actual2.Result)
-	assert.NoError(t, actual2.Err)
-	assert.Equal(t, 1, actual2.Result)
+	assert.NotNil(t, future2.Result)
+	assert.NoError(t, future2.Err)
+	assert.Equal(t, 3, future2.Result)
 
-	assert.Greater(t, time.Millisecond*(1000*1.01), time.Since(start))
+	assert.Equal(t, 5, future1.Result+future2.Result)
+
+	end := time.Since(start)
+	log.Println(end)
+
+	assert.Greater(t, time.Millisecond*(1000*1.01), end)
 }

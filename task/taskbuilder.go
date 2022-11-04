@@ -3,13 +3,11 @@ package task
 import (
 	"container/list"
 	"sync"
-	"sync/atomic"
-	"unsafe"
 )
 
 type Task[T any] struct {
-	Ptr unsafe.Pointer
-	Err error
+	Result T
+	Err    error
 }
 
 type Awaitable struct {
@@ -24,7 +22,7 @@ func Await[T any](c *Awaitable, f func() (T, error)) *Task[T] {
 	future := func() {
 		defer c.wg.Done()
 		r, err := f()
-		atomic.StorePointer(&fr.Ptr, unsafe.Pointer(&r))
+		fr.Result = r
 		fr.Err = err
 	}
 
@@ -34,13 +32,13 @@ func Await[T any](c *Awaitable, f func() (T, error)) *Task[T] {
 }
 
 type Result[T any] struct {
-	Result *T
+	Result T
 	Err    error
 }
 
 func (t *Task[T]) GetResult() Result[T] {
 	result := new(Result[T])
-	result.Result = (*T)(t.Ptr)
+	result.Result = t.Result
 	result.Err = t.Err
 	return *result
 }
