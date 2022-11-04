@@ -7,7 +7,7 @@ import (
 	"unsafe"
 )
 
-type Task struct {
+type Task[T any] struct {
 	Ptr unsafe.Pointer
 	Err error
 }
@@ -18,8 +18,8 @@ type Awaitable struct {
 	taskBuilder *Builder
 }
 
-func Await[T any](c *Awaitable, f func() (T, error)) *Task {
-	fr := new(Task)
+func Await[T any](c *Awaitable, f func() (T, error)) *Task[T] {
+	fr := new(Task[T])
 
 	future := func() {
 		defer c.wg.Done()
@@ -33,8 +33,16 @@ func Await[T any](c *Awaitable, f func() (T, error)) *Task {
 	return fr
 }
 
-func Result[T any](task *Task) *T {
-	return (*T)(task.Ptr)
+type Result[T any] struct {
+	Result *T
+	Err    error
+}
+
+func (t *Task[T]) GetResult() Result[T] {
+	result := new(Result[T])
+	result.Result = (*T)(t.Ptr)
+	result.Err = t.Err
+	return *result
 }
 
 type Builder struct {
