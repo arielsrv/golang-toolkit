@@ -33,6 +33,10 @@ func Await[T any](c *Awaitable, f func() (T, error)) *Task {
 	return fr
 }
 
+func Result[T any](task *Task) *T {
+	return (*T)(task.Ptr)
+}
+
 type Builder struct {
 }
 
