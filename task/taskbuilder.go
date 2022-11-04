@@ -36,13 +36,6 @@ type Result[T any] struct {
 	Err    error
 }
 
-func (t *Task[T]) GetResult() Result[T] {
-	result := new(Result[T])
-	result.Result = t.Result
-	result.Err = t.Err
-	return *result
-}
-
 type Builder struct {
 }
 
