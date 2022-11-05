@@ -17,7 +17,9 @@ func GetNumber() (int, error) {
 func TestBuilder_ForkJoin(t *testing.T) {
 	var future1, future2 *task.Task[int]
 
-	tb := &task.Builder{}
+	tb := &task.Builder{
+		MaxWorkers: 2,
+	}
 
 	start := time.Now()
 	tb.ForkJoin(func(c *task.Awaitable) {

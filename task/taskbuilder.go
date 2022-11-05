@@ -2,7 +2,7 @@ package task
 
 import (
 	"container/list"
-	"sync"
+	"github.com/alitto/pond"
 )
 
 type Task[T any] struct {
@@ -12,7 +12,7 @@ type Task[T any] struct {
 
 type Awaitable struct {
 	list        list.List
-	wg          sync.WaitGroup
+	pool        *pond.WorkerPool
 	taskBuilder *Builder
 }
 
@@ -20,7 +20,6 @@ func Await[T any](c *Awaitable, f func() (T, error)) *Task[T] {
 	fr := new(Task[T])
 
 	future := func() {
-		defer c.wg.Done()
 		r, err := f()
 		fr.Result = r
 		fr.Err = err
@@ -37,6 +36,8 @@ type Result[T any] struct {
 }
 
 type Builder struct {
+	MaxWorkers  int
+	MaxCapacity int
 }
 
 func (tb *Builder) ForkJoin(f func(*Awaitable)) {
@@ -45,11 +46,14 @@ func (tb *Builder) ForkJoin(f func(*Awaitable)) {
 
 	f(c)
 
-	c.wg.Add(c.list.Len())
+	c.pool = pond.New(tb.MaxWorkers, tb.MaxCapacity)
 
 	for e := c.list.Front(); e != nil; e = e.Next() {
-		go e.Value.(func())()
+		action := e.Value.(func())
+		c.pool.Submit(func() {
+			action()
+		})
 	}
 
-	c.wg.Wait()
+	c.pool.StopAndWait()
 }

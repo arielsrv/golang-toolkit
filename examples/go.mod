@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/arielsrv/golang-toolkit/rest v0.1.0
 	github.com/arielsrv/golang-toolkit/server v0.0.3
+	github.com/arielsrv/golang-toolkit/task v0.0.5
 	github.com/gofiber/fiber/v2 v2.39.0
 )
 
