@@ -3,7 +3,7 @@ module github.com/arielsrv/golang-toolkit/server
 go 1.19
 
 require (
-	github.com/gofiber/fiber/v2 v2.39.0
+	github.com/gofiber/fiber/v2 v2.40.1
 	github.com/gofiber/swagger v0.1.7
 	github.com/stretchr/testify v1.8.1
 	github.com/valyala/fasthttp v1.41.0
