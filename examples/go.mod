@@ -6,7 +6,7 @@ require (
 	github.com/arielsrv/golang-toolkit/rest v0.1.0
 	github.com/arielsrv/golang-toolkit/server v0.0.3
 	github.com/arielsrv/golang-toolkit/task v0.0.5
-	github.com/gofiber/fiber/v2 v2.39.0
+	github.com/gofiber/fiber/v2 v2.41.0
 )
 
 require (
@@ -23,13 +23,13 @@ require (
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
 	github.com/swaggo/swag v1.8.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.41.0 // indirect
+	github.com/valyala/fasthttp v1.43.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/net v0.0.0-20221002022538-bcab6841153b // indirect
 	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
