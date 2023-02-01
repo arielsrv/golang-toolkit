@@ -3,7 +3,7 @@ module github.com/arielsrv/golang-toolkit/task
 go 1.19
 
 require (
-	github.com/alitto/pond v1.8.2
+	github.com/alitto/pond v1.8.3
 	github.com/stretchr/testify v1.8.1
 )
 
